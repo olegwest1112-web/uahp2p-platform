@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P2P UAH — Кабінет трейдера</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --orange: #f97316;
+  --orange-dark: #ea6a0a;
+  --orange-light: #fb923c;
+  --orange-glow: rgba(249,115,22,0.15);
+  --bg: #0c0c0e;
+  --surface: #141418;
+  --surface2: #1c1c22;
+  --surface3: #242430;
+  --border: rgba(249,115,22,0.12);
+  --border2: rgba(255,255,255,0.06);
+  --text: #f1f1f3;
+  --muted: #6b6b7a;
+  --muted2: #9b9baa;
+  --green: #22c55e;
+  --red: #ef4444;
+  --blue: #3b82f6;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ============ LOGIN ============ */
+#login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+#login-screen::before {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(249,115,22,0.12) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 48px 40px;
+  width: 420px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-logo .logo-text {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--orange), var(--orange-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-logo .logo-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.login-title {
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.login-desc {
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted2);
+  margin-bottom: 8px;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(249,115,22,0.1);
+}
+
+.form-input::placeholder { color: var(--muted); }
+
+.login-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--orange), var(--orange-light));
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.3s;
+}
+
+.login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(249,115,22,0.4);
+}
+
+.login-error {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--red);
+  margin-top: 12px;
+  display: none;
+}
+
+.login-hint {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 20px;
+}
+
+/* ============ APP ============ */
+#app { display: none; min-height: 100vh; }
+
+/* NAVBAR */
+.navbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: 0;
+}
+
+.nav-logo {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--orange), var(--orange-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-right: 40px;
+  flex-shrink: 0;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  overflow-x: auto;
+}
+
+.nav-link {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  border: none;
+  background: none;
+  font-family: 'Inter', sans-serif;
+}
+
+.nav-link:hover { color: var(--text); background: var(--surface2); }
+
+.nav-link.active {
+  color: var(--orange);
+  background: var(--orange-glow);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.nav-balance {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.nav-balance span { color: var(--orange); }
+
+.nav-user {
+  background: linear-gradient(135deg, var(--orange), var(--orange-light));
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* MAIN */
+.main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+
+/* PAGE */
+.page { display: none; }
+.page.active { display: block; }
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+/* STATS GRID */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.2s;
+}
+
+.stat-card:hover {
+  border-color: var(--border);
+  transform: translateY(-2px);
+}
+
+.stat-card.highlight {
+  border-color: rgba(249,115,22,0.3);
+  background: linear-gradient(135deg, var(--surface), rgba(249,115,22,0.05));
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.stat-value.orange { color: var(--orange); }
+.stat-value.green { color: var(--green); }
+
+.stat-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* CHART */
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.chart-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted2);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* TABLE */
+.table-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border2);
+}
+
+.table-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.table-actions { display: flex; gap: 8px; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead tr {
+  background: linear-gradient(90deg, rgba(249,115,22,0.15), rgba(249,115,22,0.05));
+}
+
+thead th {
+  padding: 12px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--orange);
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--border2);
+  transition: background 0.2s;
+}
+
+tbody tr:hover { background: var(--surface2); }
+tbody tr:last-child { border-bottom: none; }
+
+tbody td {
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* BADGES */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-green { background: rgba(34,197,94,0.15); color: var(--green); }
+.badge-red { background: rgba(239,68,68,0.15); color: var(--red); }
+.badge-orange { background: rgba(249,115,22,0.15); color: var(--orange); }
+.badge-blue { background: rgba(59,130,246,0.15); color: var(--blue); }
+.badge-gray { background: rgba(107,114,128,0.15); color: var(--muted2); }
+
+/* BUTTONS */
+.btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+}
+
+.btn-orange {
+  background: linear-gradient(135deg, var(--orange), var(--orange-light));
+  color: white;
+}
+
+.btn-orange:hover { box-shadow: 0 4px 15px rgba(249,115,22,0.4); transform: translateY(-1px); }
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted2);
+}
+
+.btn-outline:hover { border-color: var(--orange); color: var(--orange); }
+
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+
+/* FILTERS */
+.filters {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.filter-group { display: flex; flex-direction: column; gap: 6px; }
+
+.filter-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-input, .filter-select {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.filter-input:focus, .filter-select:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 2px rgba(249,115,22,0.1);
+}
+
+.filter-select { cursor: pointer; }
+
+option { background: var(--surface2); }
+
+.filter-btns { display: flex; gap: 8px; }
+
+/* TERMINAL CARDS */
+.terminals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.terminal-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.terminal-card:hover {
+  border-color: rgba(249,115,22,0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.terminal-card.active { border-color: rgba(34,197,94,0.3); }
+
+.terminal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--orange), var(--orange-light));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.terminal-card:hover::before { opacity: 1; }
+
+.terminal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.terminal-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-dot.green { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.status-dot.red { background: var(--red); box-shadow: 0 0 8px var(--red); }
+
+.terminal-name { font-size: 18px; font-weight: 700; }
+.terminal-bank { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.terminal-card-num {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin: 16px 0;
+  font-family: 'Courier New', monospace;
+  background: linear-gradient(90deg, var(--orange), var(--orange-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.terminal-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border2);
+}
+
+.terminal-stat-label { font-size: 11px; color: var(--muted); }
+.terminal-stat-value { font-size: 14px; font-weight: 600; }
+
+/* FORM */
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 600px;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* STEP GUIDE */
+.steps-guide {
+  background: var(--surface);
+  border: 1px solid rgba(249,115,22,0.2);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.steps-guide-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--orange);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.steps-guide-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.step-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--orange), var(--orange-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.step-text { font-size: 13px; color: var(--muted2); line-height: 1.5; }
+
+/* TOGGLE */
+.toggle {
+  position: relative;
+  width: 40px;
+  height: 22px;
+}
+
+.toggle input { display: none; }
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--surface3);
+  border-radius: 22px;
+  cursor: pointer;
+  transition: 0.3s;
+  border: 1px solid var(--border2);
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 2px;
+  top: 2px;
+  background: var(--muted);
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.toggle input:checked + .toggle-slider { background: var(--orange); border-color: var(--orange); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(18px); background: white; }
+
+/* CHIP TABS */
+.chip-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+
+.chip {
+  padding: 8px 20px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--muted2);
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+}
+
+.chip:hover { border-color: var(--orange); color: var(--orange); }
+.chip.active { background: var(--orange-glow); border-color: var(--orange); color: var(--orange); }
+
+/* EMPTY STATE */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+
+.empty-icon { font-size: 48px; margin-bottom: 16px; }
+.empty-text { font-size: 14px; }
+
+/* MODAL OVERLAY */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  width: 480px;
+  max-width: 90vw;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modal-title { font-size: 18px; font-weight: 700; }
+.modal-close { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
+
+/* NOTIFICATION */
+.notification {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  animation: slideIn 0.3s ease;
+}
+
+.notification.show { display: flex; }
+.notification.success { border-color: rgba(34,197,94,0.4); }
+.notification.error { border-color: rgba(239,68,68,0.4); }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* DEPOSIT GRID */
+.deposit-wallet {
+  background: var(--surface);
+  border: 1px solid rgba(249,115,22,0.3);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.wallet-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.wallet-address { font-size: 14px; font-family: 'Courier New', monospace; color: var(--orange); }
+
+.rate-badge {
+  background: var(--orange-glow);
+  border: 1px solid rgba(249,115,22,0.3);
+  border-radius: 12px;
+  padding: 12px 20px;
+  text-align: right;
+}
+
+.rate-value { font-size: 28px; font-weight: 700; color: var(--orange); }
+.rate-label { font-size: 11px; color: var(--muted); }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--orange); }
+
+@media (max-width: 768px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .main { padding: 16px; }
+  .navbar { padding: 0 16px; }
+  .login-card { width: 90vw; padding: 32px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NOTIFICATION -->
+<div class="notification" id="notification">
+  <span id="notification-icon">✓</span>
+  <span id="notification-text"></span>
+</div>
+
+<!-- ============ LOGIN ============ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-text">P2P UAH</div>
+      <div class="logo-sub">Платформа P2P платежів</div>
+    </div>
+    <div class="login-title">Вхід до кабінету</div>
+    <div class="login-desc">Введіть логін та пароль трейдера</div>
+
+    <div class="form-group">
+      <label class="form-label">Логін</label>
+      <input type="text" class="form-input" id="login-input" placeholder="Введіть логін" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Пароль</label>
+      <input type="password" class="form-input" id="password-input" placeholder="Введіть пароль">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Увійти →</button>
+    <div class="login-error" id="login-error">❌ Невірний логін або пароль</div>
+    <div class="login-hint">Демо: логін <b>trader</b> / пароль <b>1234</b></div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-logo">P2P UAH</div>
+    <div class="nav-links">
+      <button class="nav-link active" onclick="showPage('dashboard', this)">Зведення</button>
+      <button class="nav-link" onclick="showPage('orders', this)">Ордери</button>
+      <button class="nav-link" onclick="showPage('new-terminal', this)">Новий термінал</button>
+      <button class="nav-link" onclick="showPage('terminals', this)">Термінали</button>
+      <button class="nav-link" onclick="showPage('payouts', this)">Виплати</button>
+      <button class="nav-link" onclick="showPage('deposits', this)">Депозити</button>
+    </div>
+    <div class="nav-right">
+      <div class="nav-balance">Баланс: <span id="nav-balance">135 723 ₴</span></div>
+      <div class="nav-user" onclick="doLogout()">
+        <span id="nav-username">trader</span> →
+      </div>
+    </div>
+  </nav>
+
+  <div class="main">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-title">Загальне зведення</div>
+
+      <div class="stats-grid">
+        <div class="stat-card highlight">
+          <div class="stat-label">Виконано / Усього</div>
+          <div class="stat-value orange">136 / 230</div>
+          <div class="stat-sub">Конверсія 59.1%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Конверсія</div>
+          <div class="stat-value green">59.13%</div>
+          <div class="stat-sub">За весь час</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Оборот</div>
+          <div class="stat-value">201 314 ₴</div>
+          <div class="stat-sub">Загальний</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Дохід</div>
+          <div class="stat-value orange">10 081.75 ₴</div>
+          <div class="stat-sub">Після комісії</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Внесений депозит</div>
+          <div class="stat-value">326 886 ₴</div>
+          <div class="stat-sub">Всього внесено</div>
+        </div>
+        <div class="stat-card highlight">
+          <div class="stat-label">Доступно для роботи</div>
+          <div class="stat-value green">135 723 ₴</div>
+          <div class="stat-sub">Поточний баланс</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Аналітика ефективності</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:4px">Оборот, конверсія та кількість платежів</div>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>Конверсія %</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Оборот</div>
+          </div>
+        </div>
+        <canvas id="mainChart" height="100"></canvas>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">Останні ордери</div>
+          <button class="btn btn-orange btn-sm" onclick="showPage('orders', document.querySelector('[onclick*=\"orders\"]'))">Всі ордери →</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Термінал</th>
+              <th>Сума</th>
+              <th>Статус</th>
+              <th>Реквізит</th>
+              <th>Банк</th>
+              <th>Дохід</th>
+              <th>Дедлайн</th>
+            </tr>
+          </thead>
+          <tbody id="dashboard-orders">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== ORDERS ===== -->
+    <div class="page" id="page-orders">
+      <div class="page-title">Ордери</div>
+
+      <div class="filters">
+        <div class="filter-group">
+          <label class="filter-label">ID</label>
+          <input class="filter-input" placeholder="Пошук по ID">
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Статус</label>
+          <select class="filter-select">
+            <option>Всі</option>
+            <option>Виконано</option>
+            <option>Прострочено</option>
+            <option>Нове</option>
+            <option>Скасовано</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Термінал</label>
+          <select class="filter-select">
+            <option>Всі</option>
+            <option>Олег</option>
+            <option>Терм С.Д.</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Реквізит</label>
+          <input class="filter-input" placeholder="Номер картки">
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Сума від</label>
+          <input class="filter-input" type="number" placeholder="0">
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Дії</label>
+          <div class="filter-btns">
+            <button class="btn btn-orange">Пошук</button>
+            <button class="btn btn-outline">Скинути</button>
+            <button class="btn btn-outline" style="color:var(--green);border-color:rgba(34,197,94,0.3)">Excel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">Мої ордери</div>
+          <div style="font-size:13px;color:var(--muted)">Знайдено: <span style="color:var(--orange);font-weight:600">8</span></div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Створено</th>
+              <th>Термінал</th>
+              <th>Сума</th>
+              <th>Статус</th>
+              <th>Реквізит</th>
+              <th>Банк</th>
+              <th>Дохід</th>
+              <th>USDT</th>
+              <th>Дедлайн</th>
+              <th>Дії</th>
+            </tr>
+          </thead>
+          <tbody id="orders-table">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== NEW TERMINAL ===== -->
+    <div class="page" id="page-new-terminal">
+      <div class="page-title">Додавання картки (терміналу)</div>
+
+      <div style="display:grid;grid-template-columns:1fr 380px;gap:24px">
+        <div class="form-card">
+          <div class="chip-tabs">
+            <button class="chip active">Основне</button>
+            <button class="chip">Ліміти</button>
+            <button class="chip">Інтервали</button>
+            <button class="chip">Додатково</button>
+          </div>
+
+          <div class="form-section">
+            <div class="form-group">
+              <label class="form-label">Номер картки</label>
+              <input class="form-input" placeholder="0000 0000 0000 0000" id="term-card" maxlength="19" oninput="formatCard(this)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Номер телефону (СБП)</label>
+              <input class="form-input" placeholder="+380 00 000 0000" id="term-phone">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Банк</label>
+              <select class="form-input" id="term-bank">
+                <option value="">— Оберіть банк —</option>
+                <option>ПриватБанк</option>
+                <option>Monobank</option>
+                <option>ПУМБ</option>
+                <option>Ощадбанк</option>
+                <option>Укрсиббанк</option>
+                <option>Райффайзен</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ім'я отримувача</label>
+              <input class="form-input" placeholder="Іван І." id="term-name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Назва терміналу</label>
+              <input class="form-input" placeholder="Термінал Іван І." id="term-title">
+            </div>
+            <button class="btn btn-orange" style="width:100%;padding:16px;font-size:15px" onclick="addTerminal()">Додати термінал</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="steps-guide">
+            <div class="steps-guide-title">Як почати працювати</div>
+            <div class="steps-guide-list">
+              <div class="step-item">
+                <div class="step-num">1</div>
+                <div class="step-text">Перед активацією терміналу потрібно виконати тестове замовлення для перевірки що автоматика коректно закриває транзакції.</div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">2</div>
+                <div class="step-text">Переконайтесь, що реквізит (картка або телефон) введено вірно. Система відстежуватиме вхідні платежі за цим реквізитом.</div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">3</div>
+                <div class="step-text">Після цього ви отримаєте суму й реквізит, на який потрібно надіслати платіж.</div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">4</div>
+                <div class="step-text">Коли кошти надійдуть — система перехопить push-сповіщення та надішле дані на платформу.</div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">5</div>
+                <div class="step-text">Після успішного тесту активуйте реквізит і починайте приймати замовлення.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TERMINALS ===== -->
+    <div class="page" id="page-terminals">
+      <div class="page-title">Термінали</div>
+
+      <div style="display:flex;gap:12px;margin-bottom:20px;align-items:center">
+        <input class="filter-input" placeholder="Пошук: назва, реквізит, ім'я" style="max-width:280px">
+        <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+        <span style="font-size:13px;color:var(--muted2)">Лише увімкнені</span>
+        <button class="btn btn-orange" style="margin-left:auto" onclick="showPage('new-terminal', null)">+ Додати термінал</button>
+      </div>
+
+      <div class="terminals-grid" id="terminals-grid">
+      </div>
+    </div>
+
+    <!-- ===== PAYOUTS ===== -->
+    <div class="page" id="page-payouts">
+      <div class="page-title">Виплати</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px">
+        <div class="stat-card highlight">
+          <div class="stat-label">Доступно для виплат</div>
+          <div class="stat-value orange">135 723 ₴</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Виплачено всього</div>
+          <div class="stat-value">48 200 ₴</div>
+        </div>
+      </div>
+
+      <div class="form-card" style="margin-bottom:24px">
+        <div style="font-size:16px;font-weight:700;margin-bottom:20px">Нова виплата</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group">
+            <label class="form-label">Номер картки</label>
+            <input class="form-input" placeholder="0000 0000 0000 0000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Сума (₴)</label>
+            <input class="form-input" type="number" placeholder="1000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Тип</label>
+            <select class="form-input">
+              <option>Банківська карта</option>
+              <option>СБП</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Order ID</label>
+            <input class="form-input" placeholder="payout-001">
+          </div>
+        </div>
+        <button class="btn btn-orange" style="margin-top:8px;padding:14px 32px" onclick="showNotification('✅ Виплату створено!', 'success')">Створити виплату</button>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">Мої виплати</div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Order ID</th>
+              <th>Тип</th>
+              <th>Сума</th>
+              <th>Комісія</th>
+              <th>Статус</th>
+              <th>Реквізит</th>
+              <th>Банк</th>
+              <th>Створено</th>
+            </tr>
+          </thead>
+          <tbody id="payouts-table">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== DEPOSITS ===== -->
+    <div class="page" id="page-deposits">
+      <div class="page-title">Депозити</div>
+
+      <div class="deposit-wallet">
+        <div>
+          <div class="wallet-label">Ваш гаманець USDT (TRC-20)</div>
+          <div class="wallet-address" id="wallet-address">TZAQeyADF3JhYWhJzxmBcjxmZonCzyREdF</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <button class="btn btn-outline btn-sm" onclick="copyWallet()">📋 Копіювати</button>
+          <div class="rate-badge">
+            <div class="rate-value">44.79</div>
+            <div class="rate-label">USDT / UAH</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filters" style="grid-template-columns:repeat(4,1fr)">
+        <div class="filter-group">
+          <label class="filter-label">ID</label>
+          <input class="filter-input" placeholder="ID">
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Хеш транзакції</label>
+          <input class="filter-input" placeholder="Хеш">
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Тип</label>
+          <select class="filter-select">
+            <option>Всі</option>
+            <option>Депозит</option>
+            <option>Виплата</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Дії</label>
+          <div class="filter-btns">
+            <button class="btn btn-orange">Пошук</button>
+            <button class="btn btn-outline">Скинути</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">Мої депозити</div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Дата/час</th>
+              <th>Хеш</th>
+              <th>Сума USDT</th>
+              <th>Сума UAH</th>
+              <th>Курс</th>
+              <th>Опис</th>
+              <th>Тип</th>
+            </tr>
+          </thead>
+          <tbody id="deposits-table">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ===== DATA =====
+const USERS = { trader: '1234', admin: 'admin123' };
+
+const ORDERS = [
+  { id: 775053, created: '28.03.2026 11:17', terminal: 'Олег', amount: 564, status: 'Прострочено', cred: '5457 0825 4291 7054', bank: 'Приват Банк', income: 27.64, usdt: 12.52, deadline: '28.03 11:27' },
+  { id: 775052, created: '28.03.2026 11:16', terminal: 'Олег', amount: 525, status: 'Прострочено', cred: '5457 0825 4291 7054', bank: 'Приват Банк', income: 25.73, usdt: 11.65, deadline: '28.03 11:26' },
+  { id: 775050, created: '28.03.2026 11:15', terminal: 'Олег', amount: 868, status: 'Виконано', cred: '5457 0825 4291 7054', bank: 'Приват Банк', income: 42.53, usdt: 19.27, deadline: '28.03 11:25' },
+  { id: 775049, created: '28.03.2026 11:14', terminal: 'Олег', amount: 512, status: 'Прострочено', cred: '5457 0825 4291 7054', bank: 'Приват Банк', income: 25.09, usdt: 11.37, deadline: '28.03 11:24' },
+  { id: 775045, created: '27.03.2026 18:33', terminal: 'Терм С.Д.', amount: 1200, status: 'Виконано', cred: '5355 2800 4394 4980', bank: 'ПУМБ', income: 58.80, usdt: 26.64, deadline: '27.03 18:43' },
+  { id: 775041, created: '27.03.2026 16:10', terminal: 'Олег', amount: 750, status: 'Скасовано', cred: '5457 0825 4291 7054', bank: 'Приват Банк', income: 0, usdt: 16.65, deadline: '27.03 16:20' },
+  { id: 775038, created: '27.03.2026 14:05', terminal: 'Терм С.Д.', amount: 990, status: 'Виконано', cred: '5355 2800 4394 4980', bank: 'ПУМБ', income: 48.51, usdt: 21.97, deadline: '27.03 14:15' },
+  { id: 775030, created: '26.03.2026 22:47', terminal: 'Олег', amount: 2000, status: 'Виконано', cred: '5457 0825 4291 7054', bank: 'Приват Банк', income: 98.00, usdt: 44.35, deadline: '26.03 22:57' },
+];
+
+const TERMINALS_DATA = [
+  { name: 'Олег', owner: 'ОЛЕГ', bank: 'ПРИВАТ БАНК', card: '5457 0825 4291 7054', active: true, ordersOn: true, dayLimit: '100,0M', dayOps: '100,0K', totalLimit: '—', totalOps: '—' },
+  { name: 'Терм С.Д.', owner: 'САВЧУК Д.', bank: 'ПУМБ', card: '5355 2800 4394 4980', active: false, ordersOn: false, dayLimit: '50K', dayOps: '100,0K', totalLimit: '30,1K', totalOps: '—' },
+];
+
+const DEPOSITS_DATA = [
+  { date: '31.03.2026 22:14', hash: '870aae59078bed5aba608e7444863619610d4a26a883f1b3db937b0c8eb5a77f', usdt: 166.50, uah: 7349.31, rate: 44.14, desc: '-', type: 'Deposit/Поповнення' },
+  { date: '22.03.2026 20:13', hash: '-', usdt: 680, uah: 30722.40, rate: 45.18, desc: 'В счет возврата депозита 7131', type: 'Deposit/Поповнення' },
+  { date: '20.02.2026 15:17', hash: 'fa51b4c4abd744c17dc9fb9314138c37f1bd2b0c2a5c80989634bc170ad4b7b6', usdt: 962, uah: 43049.50, rate: 44.75, desc: 'Виплатили 7204', type: 'Deposit/Поповнення' },
+];
+
+const PAYOUTS_DATA = [
+  { id: 2854, order_id: 'TEST-U-5', type: 'CARD', amount: 1000, commission: 20, status: 'COMPLETED', cred: '2202 2068 9886 4454', bank: 'ПриватБанк', created: '11.09.2025 14:02' },
+  { id: 2790, order_id: 'TEST-U-3', type: 'CARD', amount: 2500, commission: 50, status: 'COMPLETED', cred: '5457 0825 4291 7054', bank: 'Приват Банк', created: '05.09.2025 10:15' },
+  { id: 2710, order_id: 'TEST-U-1', type: 'SBP', amount: 800, commission: 16, status: 'FAILED', cred: '+38 066 123 4567', bank: '-', created: '01.09.2025 18:44' },
+];
+
+// ===== STATUS BADGE =====
+function statusBadge(status) {
+  const map = {
+    'Виконано': 'badge-green', 'COMPLETED': 'badge-green',
+    'Прострочено': 'badge-red', 'FAILED': 'badge-red',
+    'Скасовано': 'badge-gray', 'CANCELLED': 'badge-gray',
+    'Нове': 'badge-orange', 'NEW': 'badge-orange',
+    'В обробці': 'badge-blue', 'PROCESSING': 'badge-blue',
+  };
+  const cls = map[status] || 'badge-gray';
+  return `<span class="badge ${cls}">${status}</span>`;
+}
+
+// ===== RENDER TABLES =====
+function renderOrders(limit = null) {
+  const data = limit ? ORDERS.slice(0, limit) : ORDERS;
+  const tbody = document.getElementById(limit ? 'dashboard-orders' : 'orders-table');
+  if (!tbody) return;
+
+  tbody.innerHTML = data.map(o => `
+    <tr>
+      <td style="color:var(--orange);font-weight:600">#${o.id}</td>
+      ${!limit ? `<td style="color:var(--muted2)">${o.created}</td>` : ''}
+      <td>${o.terminal}</td>
+      <td style="font-weight:600">${o.amount} ₴</td>
+      <td>${statusBadge(o.status)}</td>
+      <td style="font-family:monospace;font-size:12px;color:var(--muted2)">${o.cred}</td>
+      <td>${o.bank}</td>
+      <td style="color:var(--green)">${o.income > 0 ? '+' + o.income.toFixed(2) + ' ₴' : '—'}</td>
+      ${!limit ? `<td style="color:var(--muted2)">${o.usdt}</td>` : ''}
+      <td style="color:var(--muted2)">${o.deadline}</td>
+      ${!limit ? `<td><button class="btn btn-outline btn-sm" onclick="showNotification('Ордер #${o.id} відмічено як виконано', 'success')">Виконати</button></td>` : ''}
+    </tr>
+  `).join('');
+}
+
+function renderTerminals() {
+  const grid = document.getElementById('terminals-grid');
+  if (!grid) return;
+  grid.innerHTML = TERMINALS_DATA.map(t => `
+    <div class="terminal-card ${t.active ? 'active' : ''}">
+      <div class="terminal-header">
+        <div class="terminal-status">
+          <div class="status-dot ${t.active ? 'green' : 'red'}"></div>
+          <span style="color:${t.active ? 'var(--green)' : 'var(--red)'}">${t.name}</span>
+        </div>
+        <div style="cursor:pointer;color:var(--muted)">⚙</div>
+      </div>
+      <div class="terminal-name">${t.owner}</div>
+      <div class="terminal-bank">${t.bank}</div>
+      <div class="terminal-card-num">${t.card}</div>
+      <div class="terminal-stats">
+        <div>
+          <div class="terminal-stat-label">Оборот / день</div>
+          <div class="terminal-stat-value">0 / ${t.dayLimit} UAH</div>
+        </div>
+        <div>
+          <div class="terminal-stat-label">Операції / день</div>
+          <div class="terminal-stat-value">0 / ${t.dayOps} шт</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border2);align-items:center">
+        <span class="badge ${t.active ? 'badge-green' : 'badge-red'}">${t.active ? 'Активний' : 'Неактивний'}</span>
+        <span class="badge badge-orange">Картка увімк.</span>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:var(--muted)">Ордери</span>
+          <label class="toggle"><input type="checkbox" ${t.ordersOn ? 'checked' : ''}><span class="toggle-slider"></span></label>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderDeposits() {
+  const tbody = document.getElementById('deposits-table');
+  if (!tbody) return;
+  tbody.innerHTML = DEPOSITS_DATA.map(d => `
+    <tr>
+      <td style="color:var(--muted2)">${d.date}</td>
+      <td style="font-family:monospace;font-size:11px;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis">${d.hash}</td>
+      <td style="color:var(--orange);font-weight:600">${d.usdt}</td>
+      <td style="font-weight:600">${d.uah.toLocaleString()} ₴</td>
+      <td style="color:var(--muted2)">${d.rate}</td>
+      <td style="color:var(--muted2)">${d.desc}</td>
+      <td><span class="badge badge-blue" style="font-size:10px">${d.type}</span></td>
+    </tr>
+  `).join('');
+}
+
+function renderPayouts() {
+  const tbody = document.getElementById('payouts-table');
+  if (!tbody) return;
+  tbody.innerHTML = PAYOUTS_DATA.map(p => `
+    <tr>
+      <td style="color:var(--orange);font-weight:600">#${p.id}</td>
+      <td style="color:var(--muted2)">${p.order_id}</td>
+      <td><span class="badge badge-blue">${p.type}</span></td>
+      <td style="font-weight:600">${p.amount.toLocaleString()} ₴</td>
+      <td style="color:var(--red)">-${p.commission} ₴</td>
+      <td>${statusBadge(p.status)}</td>
+      <td style="font-family:monospace;font-size:12px;color:var(--muted2)">${p.cred}</td>
+      <td>${p.bank}</td>
+      <td style="color:var(--muted2)">${p.created}</td>
+    </tr>
+  `).join('');
+}
+
+// ===== CHART =====
+function initChart() {
+  const ctx = document.getElementById('mainChart');
+  if (!ctx) return;
+
+  const labels = ['Лип', 'Серп', 'Вер', 'Жов', 'Лис', 'Гру', 'Січ', 'Лют', 'Бер'];
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Конверсія %',
+          data: [72, 85, 60, 88, 45, 70, 55, 80, 59],
+          borderColor: '#f97316',
+          backgroundColor: 'rgba(249,115,22,0.1)',
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#f97316',
+          pointRadius: 4,
+        },
+        {
+          label: 'Оборот (тис)',
+          data: [15, 28, 12, 35, 8, 22, 18, 30, 20],
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59,130,246,0.1)',
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#3b82f6',
+          pointRadius: 4,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1c1c22',
+          titleColor: '#f1f1f3',
+          bodyColor: '#9b9baa',
+          borderColor: 'rgba(249,115,22,0.3)',
+          borderWidth: 1,
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#6b6b7a', font: { size: 12 } }
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#6b6b7a', font: { size: 12 } }
+        }
+      }
+    }
+  });
+}
+
+// ===== NAVIGATION =====
+function showPage(pageId, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + pageId)?.classList.add('active');
+
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else {
+    document.querySelectorAll('.nav-link').forEach(l => {
+      if (l.getAttribute('onclick')?.includes(pageId)) l.classList.add('active');
+    });
+  }
+}
+
+// ===== LOGIN =====
+function doLogin() {
+  const login = document.getElementById('login-input').value.trim();
+  const pass = document.getElementById('password-input').value;
+
+  if (USERS[login] && USERS[login] === pass) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('nav-username').textContent = login;
+
+    renderOrders(5);
+    renderOrders();
+    renderTerminals();
+    renderDeposits();
+    renderPayouts();
+    setTimeout(initChart, 100);
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('password-input').value = '';
+  }
+}
+
+document.getElementById('password-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+document.getElementById('login-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('password-input').focus();
+});
+
+function doLogout() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-input').value = '';
+  document.getElementById('password-input').value = '';
+  document.getElementById('login-error').style.display = 'none';
+}
+
+// ===== ADD TERMINAL =====
+function addTerminal() {
+  const card = document.getElementById('term-card').value;
+  const name = document.getElementById('term-name').value;
+  const bank = document.getElementById('term-bank').value;
+  const title = document.getElementById('term-title').value;
+
+  if (!card || !name || !bank || !title) {
+    showNotification('❌ Заповніть всі поля', 'error');
+    return;
+  }
+
+  TERMINALS_DATA.push({
+    name: title,
+    owner: name.toUpperCase(),
+    bank: bank.toUpperCase(),
+    card: card,
+    active: true,
+    ordersOn: false,
+    dayLimit: '50K',
+    dayOps: '100K',
+    totalLimit: '—',
+    totalOps: '—'
+  });
+
+  document.getElementById('term-card').value = '';
+  document.getElementById('term-name').value = '';
+  document.getElementById('term-bank').value = '';
+  document.getElementById('term-title').value = '';
+
+  showNotification('✅ Термінал додано!', 'success');
+  renderTerminals();
+}
+
+// ===== FORMAT CARD =====
+function formatCard(input) {
+  let val = input.value.replace(/\D/g, '').slice(0, 16);
+  input.value = val.replace(/(.{4})/g, '$1 ').trim();
+}
+
+// ===== COPY WALLET =====
+function copyWallet() {
+  const addr = document.getElementById('wallet-address').textContent;
+  navigator.clipboard.writeText(addr).then(() => {
+    showNotification('📋 Адресу скопійовано!', 'success');
+  });
+}
+
+// ===== NOTIFICATION =====
+function showNotification(text, type = 'success') {
+  const el = document.getElementById('notification');
+  document.getElementById('notification-text').textContent = text;
+  el.className = 'notification show ' + type;
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
