@@ -4,1568 +4,894 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>P2P UAH — Кабінет трейдера</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 :root {
-  --orange: #f97316;
-  --orange-dark: #ea6a0a;
-  --orange-light: #fb923c;
-  --orange-glow: rgba(249,115,22,0.15);
-  --bg: #0c0c0e;
-  --surface: #141418;
-  --surface2: #1c1c22;
-  --surface3: #242430;
-  --border: rgba(249,115,22,0.12);
-  --border2: rgba(255,255,255,0.06);
-  --text: #f1f1f3;
-  --muted: #6b6b7a;
-  --muted2: #9b9baa;
-  --green: #22c55e;
-  --red: #ef4444;
-  --blue: #3b82f6;
+  --orange:#f97316;--orange-dark:#c2570a;--orange-light:#fb923c;
+  --orange-glow:rgba(249,115,22,0.12);
+  --bg:#09090b;--surface:#111113;--surface2:#18181c;--surface3:#222228;
+  --border:rgba(249,115,22,0.15);--border2:rgba(255,255,255,0.06);
+  --text:#f4f4f6;--muted:#5a5a68;--muted2:#8e8e9e;
+  --green:#22c55e;--red:#ef4444;--blue:#3b82f6;--yellow:#fbbf24;
+  --radius:14px;
 }
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;font-size:14px;}
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+/* LOGIN */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden;}
+.login-orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;}
+.login-orb.a{width:500px;height:500px;background:rgba(249,115,22,0.08);top:-100px;left:-100px;}
+.login-orb.b{width:400px;height:400px;background:rgba(249,115,22,0.06);bottom:-100px;right:-100px;}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:48px 44px;width:440px;position:relative;z-index:1;box-shadow:0 50px 100px rgba(0,0,0,0.6);}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:36px;justify-content:center;}
+.logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--orange),var(--orange-light));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;}
+.logo-name{font-size:22px;font-weight:900;letter-spacing:-0.5px;background:linear-gradient(135deg,var(--orange),var(--orange-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.logo-sub{font-size:11px;color:var(--muted);font-weight:500;}
+.login-title{font-size:26px;font-weight:800;margin-bottom:6px;letter-spacing:-0.5px;}
+.login-desc{font-size:14px;color:var(--muted2);margin-bottom:32px;}
+.form-group{margin-bottom:16px;}
+.form-label{font-size:11px;font-weight:800;color:var(--muted2);margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.8px;}
+.form-input{width:100%;background:var(--surface2);border:1.5px solid var(--border2);border-radius:12px;padding:14px 16px;font-size:14px;font-weight:500;color:var(--text);font-family:'Manrope',sans-serif;transition:all .2s;outline:none;}
+.form-input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(249,115,22,0.1);background:var(--surface3);}
+.form-input::placeholder{color:var(--muted);}
+.login-btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--orange-dark),var(--orange),var(--orange-light));border:none;border-radius:12px;color:white;font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;transition:all .3s;}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 12px 35px rgba(249,115,22,0.45);}
+.login-error{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:12px 16px;font-size:13px;font-weight:600;color:var(--red);margin-top:12px;display:none;}
+.login-hint{text-align:center;font-size:12px;color:var(--muted);margin-top:20px;font-weight:500;}
 
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  overflow-x: hidden;
-}
+/* APP */
+#app{display:none;flex-direction:column;height:100vh;}
 
-/* ============ LOGIN ============ */
-#login-screen {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg);
-  position: relative;
-  overflow: hidden;
-}
+/* TOPBAR */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border2);height:58px;display:flex;align-items:center;padding:0 24px;gap:4px;flex-shrink:0;position:sticky;top:0;z-index:100;}
+.tl{display:flex;align-items:center;gap:10px;margin-right:16px;flex-shrink:0;}
+.tl-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--orange),var(--orange-light));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:white;}
+.tl-name{font-size:17px;font-weight:900;letter-spacing:-0.5px;background:linear-gradient(135deg,var(--orange),var(--orange-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.tnav{display:flex;align-items:center;gap:2px;flex:1;overflow-x:auto;}
+.tnav::-webkit-scrollbar{display:none;}
+.nbtn{padding:7px 13px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted2);cursor:pointer;white-space:nowrap;transition:all .15s;border:none;background:none;font-family:'Manrope',sans-serif;}
+.nbtn:hover{color:var(--text);background:var(--surface2);}
+.nbtn.active{color:var(--orange);background:var(--orange-glow);}
+.tr{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0;}
+.tsearch{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:7px 14px;font-size:13px;color:var(--text);font-family:'Manrope',sans-serif;outline:none;width:180px;transition:all .2s;}
+.tsearch:focus{border-color:var(--orange);width:220px;}
+.tsearch::placeholder{color:var(--muted);}
+.tbal{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;}
+.tbal .bl{color:var(--muted);font-weight:500;}
+.tbal .bv{color:var(--orange);}
+.nbell{width:36px;height:36px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;position:relative;transition:all .2s;}
+.nbell:hover{border-color:var(--orange);}
+.nbadge{position:absolute;top:-4px;right:-4px;width:16px;height:16px;background:var(--orange);border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;color:white;}
+.ubtn{background:linear-gradient(135deg,var(--orange-dark),var(--orange));border-radius:10px;padding:7px 14px;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:8px;color:white;border:none;font-family:'Manrope',sans-serif;transition:all .2s;}
+.ubtn:hover{box-shadow:0 4px 15px rgba(249,115,22,0.4);}
 
-#login-screen::before {
-  content: '';
-  position: absolute;
-  width: 600px;
-  height: 600px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(249,115,22,0.12) 0%, transparent 70%);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:28px 32px;}
+.content::-webkit-scrollbar{width:5px;}
+.content::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px;}
 
-.login-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 48px 40px;
-  width: 420px;
-  position: relative;
-  z-index: 1;
-  box-shadow: 0 40px 80px rgba(0,0,0,0.5);
-}
+/* PAGES */
+.page{display:none;}
+.page.active{display:block;animation:fi .2s ease;}
+@keyframes fi{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
-.login-logo {
-  text-align: center;
-  margin-bottom: 32px;
-}
+.ph{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;}
+.ptitle{font-size:24px;font-weight:800;letter-spacing:-0.5px;}
+.psub{font-size:13px;color:var(--muted2);margin-top:3px;font-weight:500;}
 
-.login-logo .logo-text {
-  font-family: 'Unbounded', sans-serif;
-  font-size: 28px;
-  font-weight: 900;
-  background: linear-gradient(135deg, var(--orange), var(--orange-light));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+/* STATS */
+.sr{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:22px;}
+.sc{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:20px;transition:all .2s;cursor:default;}
+.sc:hover{border-color:rgba(249,115,22,0.25);transform:translateY(-2px);}
+.sc.oc{border-color:rgba(249,115,22,0.25);background:linear-gradient(135deg,var(--surface),rgba(249,115,22,0.06));}
+.slbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;}
+.sval{font-size:24px;font-weight:800;letter-spacing:-0.5px;}
+.sval.or{color:var(--orange);}
+.sval.gr{color:var(--green);}
+.sval.rd{color:var(--red);}
+.sch{font-size:12px;font-weight:600;margin-top:6px;}
+.sch.up{color:var(--green);}
+.sch.dn{color:var(--red);}
+.sch.nt{color:var(--muted2);}
 
-.login-logo .logo-sub {
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: 4px;
-}
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.gs{display:grid;grid-template-columns:1fr 340px;gap:20px;}
 
-.login-title {
-  font-size: 22px;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 8px;
-}
-
-.login-desc {
-  font-size: 13px;
-  color: var(--muted);
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.form-group {
-  margin-bottom: 16px;
-}
-
-.form-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--muted2);
-  margin-bottom: 8px;
-  display: block;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.form-input {
-  width: 100%;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  border-radius: 12px;
-  padding: 14px 16px;
-  font-size: 14px;
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-  transition: all 0.2s;
-  outline: none;
-}
-
-.form-input:focus {
-  border-color: var(--orange);
-  box-shadow: 0 0 0 3px rgba(249,115,22,0.1);
-}
-
-.form-input::placeholder { color: var(--muted); }
-
-.login-btn {
-  width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, var(--orange), var(--orange-light));
-  border: none;
-  border-radius: 12px;
-  color: white;
-  font-family: 'Inter', sans-serif;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: all 0.3s;
-}
-
-.login-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(249,115,22,0.4);
-}
-
-.login-error {
-  background: rgba(239,68,68,0.1);
-  border: 1px solid rgba(239,68,68,0.3);
-  border-radius: 10px;
-  padding: 12px 16px;
-  font-size: 13px;
-  color: var(--red);
-  margin-top: 12px;
-  display: none;
-}
-
-.login-hint {
-  text-align: center;
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 20px;
-}
-
-/* ============ APP ============ */
-#app { display: none; min-height: 100vh; }
-
-/* NAVBAR */
-.navbar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 0 32px;
-  display: flex;
-  align-items: center;
-  height: 60px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  gap: 0;
-}
-
-.nav-logo {
-  font-family: 'Unbounded', sans-serif;
-  font-size: 18px;
-  font-weight: 900;
-  background: linear-gradient(135deg, var(--orange), var(--orange-light));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-right: 40px;
-  flex-shrink: 0;
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex: 1;
-  overflow-x: auto;
-}
-
-.nav-link {
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--muted2);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s;
-  border: none;
-  background: none;
-  font-family: 'Inter', sans-serif;
-}
-
-.nav-link:hover { color: var(--text); background: var(--surface2); }
-
-.nav-link.active {
-  color: var(--orange);
-  background: var(--orange-glow);
-}
-
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-left: auto;
-  flex-shrink: 0;
-}
-
-.nav-balance {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.nav-balance span { color: var(--orange); }
-
-.nav-user {
-  background: linear-gradient(135deg, var(--orange), var(--orange-light));
-  border-radius: 10px;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* MAIN */
-.main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
-
-/* PAGE */
-.page { display: none; }
-.page.active { display: block; }
-
-.page-title {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 24px;
-}
-
-/* STATS GRID */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: 16px;
-  padding: 24px;
-  transition: all 0.2s;
-}
-
-.stat-card:hover {
-  border-color: var(--border);
-  transform: translateY(-2px);
-}
-
-.stat-card.highlight {
-  border-color: rgba(249,115,22,0.3);
-  background: linear-gradient(135deg, var(--surface), rgba(249,115,22,0.05));
-}
-
-.stat-label {
-  font-size: 12px;
-  color: var(--muted);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 10px;
-}
-
-.stat-value {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.stat-value.orange { color: var(--orange); }
-.stat-value.green { color: var(--green); }
-
-.stat-sub {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 6px;
-}
-
-/* CHART */
-.chart-card {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
-}
-
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.chart-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--muted2);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.chart-legend {
-  display: flex;
-  gap: 16px;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--muted2);
-}
-
-.legend-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--border2);}
+.ct{font-size:15px;font-weight:800;}
+.cs{font-size:12px;color:var(--muted2);font-weight:500;}
+.cb{padding:22px;}
 
 /* TABLE */
-.table-card {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: 16px;
-  overflow: hidden;
-}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:linear-gradient(90deg,rgba(249,115,22,0.1),rgba(249,115,22,0.04));}
+thead th{padding:11px 16px;font-size:11px;font-weight:800;color:var(--orange);text-align:left;text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;}
+tbody tr{border-bottom:1px solid rgba(255,255,255,0.04);transition:background .15s;}
+tbody tr:hover{background:var(--surface2);}
+tbody tr:last-child{border-bottom:none;}
+tbody td{padding:13px 16px;font-size:13px;font-weight:500;white-space:nowrap;}
 
-.table-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--border2);
-}
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.bg-gr{background:rgba(34,197,94,0.12);color:var(--green);}
+.bg-rd{background:rgba(239,68,68,0.12);color:var(--red);}
+.bg-or{background:rgba(249,115,22,0.12);color:var(--orange);}
+.bg-bl{background:rgba(59,130,246,0.12);color:var(--blue);}
+.bg-gy{background:rgba(90,90,104,0.15);color:var(--muted2);}
+.bg-yl{background:rgba(251,191,36,0.12);color:var(--yellow);}
 
-.table-title {
-  font-size: 16px;
-  font-weight: 700;
-}
+/* BTN */
+.btn{padding:9px 18px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Manrope',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:6px;}
+.bp{background:linear-gradient(135deg,var(--orange-dark),var(--orange));color:white;}
+.bp:hover{box-shadow:0 6px 20px rgba(249,115,22,0.4);transform:translateY(-1px);}
+.bo{background:transparent;border:1.5px solid var(--border2);color:var(--muted2);}
+.bo:hover{border-color:var(--orange);color:var(--orange);}
+.bg{background:var(--surface2);color:var(--muted2);}
+.bg:hover{color:var(--text);}
+.bda{background:rgba(239,68,68,0.1);color:var(--red);}
+.bda:hover{background:rgba(239,68,68,0.2);}
+.bsu{background:rgba(34,197,94,0.1);color:var(--green);}
+.bsu:hover{background:rgba(34,197,94,0.2);}
+.bsm{padding:6px 12px;font-size:12px;border-radius:7px;}
+.blg{padding:14px 28px;font-size:15px;font-weight:800;}
 
-.table-actions { display: flex; gap: 8px; }
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-thead tr {
-  background: linear-gradient(90deg, rgba(249,115,22,0.15), rgba(249,115,22,0.05));
-}
-
-thead th {
-  padding: 12px 16px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--orange);
-  text-align: left;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-}
-
-tbody tr {
-  border-bottom: 1px solid var(--border2);
-  transition: background 0.2s;
-}
-
-tbody tr:hover { background: var(--surface2); }
-tbody tr:last-child { border-bottom: none; }
-
-tbody td {
-  padding: 14px 16px;
-  font-size: 13px;
-  color: var(--text);
-  white-space: nowrap;
-}
-
-/* BADGES */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.badge-green { background: rgba(34,197,94,0.15); color: var(--green); }
-.badge-red { background: rgba(239,68,68,0.15); color: var(--red); }
-.badge-orange { background: rgba(249,115,22,0.15); color: var(--orange); }
-.badge-blue { background: rgba(59,130,246,0.15); color: var(--blue); }
-.badge-gray { background: rgba(107,114,128,0.15); color: var(--muted2); }
-
-/* BUTTONS */
-.btn {
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  font-family: 'Inter', sans-serif;
-  transition: all 0.2s;
-}
-
-.btn-orange {
-  background: linear-gradient(135deg, var(--orange), var(--orange-light));
-  color: white;
-}
-
-.btn-orange:hover { box-shadow: 0 4px 15px rgba(249,115,22,0.4); transform: translateY(-1px); }
-
-.btn-outline {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--muted2);
-}
-
-.btn-outline:hover { border-color: var(--orange); color: var(--orange); }
-
-.btn-sm { padding: 6px 12px; font-size: 12px; }
-
-/* FILTERS */
-.filters {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: 16px;
-  padding: 20px 24px;
-  margin-bottom: 20px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-  align-items: end;
-}
-
-.filter-group { display: flex; flex-direction: column; gap: 6px; }
-
-.filter-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.filter-input, .filter-select {
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 13px;
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-  outline: none;
-  transition: all 0.2s;
-}
-
-.filter-input:focus, .filter-select:focus {
-  border-color: var(--orange);
-  box-shadow: 0 0 0 2px rgba(249,115,22,0.1);
-}
-
-.filter-select { cursor: pointer; }
-
-option { background: var(--surface2); }
-
-.filter-btns { display: flex; gap: 8px; }
-
-/* TERMINAL CARDS */
-.terminals-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.terminal-card {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: 16px;
-  padding: 24px;
-  transition: all 0.3s;
-  position: relative;
-  overflow: hidden;
-}
-
-.terminal-card:hover {
-  border-color: rgba(249,115,22,0.3);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
-
-.terminal-card.active { border-color: rgba(34,197,94,0.3); }
-
-.terminal-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--orange), var(--orange-light));
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.terminal-card:hover::before { opacity: 1; }
-
-.terminal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
-}
-
-.terminal-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.status-dot.green { background: var(--green); box-shadow: 0 0 8px var(--green); }
-.status-dot.red { background: var(--red); box-shadow: 0 0 8px var(--red); }
-
-.terminal-name { font-size: 18px; font-weight: 700; }
-.terminal-bank { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.terminal-card-num {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  margin: 16px 0;
-  font-family: 'Courier New', monospace;
-  background: linear-gradient(90deg, var(--orange), var(--orange-light));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.terminal-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border2);
-}
-
-.terminal-stat-label { font-size: 11px; color: var(--muted); }
-.terminal-stat-value { font-size: 14px; font-weight: 600; }
-
-/* FORM */
-.form-card {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: 16px;
-  padding: 32px;
-  max-width: 600px;
-}
-
-.form-section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* STEP GUIDE */
-.steps-guide {
-  background: var(--surface);
-  border: 1px solid rgba(249,115,22,0.2);
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
-}
-
-.steps-guide-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--orange);
-  margin-bottom: 16px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.steps-guide-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.step-item {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.step-num {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--orange), var(--orange-light));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.step-text { font-size: 13px; color: var(--muted2); line-height: 1.5; }
+/* FILTER */
+.fbar{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:18px 20px;margin-bottom:18px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;}
+.fg{display:flex;flex-direction:column;gap:6px;flex:1;min-width:130px;}
+.flbl{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;}
+.fi,.fsel{background:var(--surface2);border:1.5px solid var(--border2);border-radius:9px;padding:9px 12px;font-size:13px;font-weight:500;color:var(--text);font-family:'Manrope',sans-serif;outline:none;transition:all .2s;}
+.fi:focus,.fsel:focus{border-color:var(--orange);box-shadow:0 0 0 2px rgba(249,115,22,0.1);}
+.fsel{cursor:pointer;}
+option{background:#18181c;}
 
 /* TOGGLE */
-.toggle {
-  position: relative;
-  width: 40px;
-  height: 22px;
-}
+.toggle{position:relative;width:42px;height:24px;flex-shrink:0;}
+.toggle input{display:none;}
+.slider{position:absolute;inset:0;background:var(--surface3);border-radius:24px;cursor:pointer;transition:.3s;border:1.5px solid var(--border2);}
+.slider::before{content:'';position:absolute;width:17px;height:17px;left:2px;top:2px;background:var(--muted);border-radius:50%;transition:.3s;}
+.toggle input:checked+.slider{background:var(--orange);border-color:var(--orange);}
+.toggle input:checked+.slider::before{transform:translateX(18px);background:white;}
 
-.toggle input { display: none; }
+/* CHIPS */
+.chips{display:flex;gap:8px;flex-wrap:wrap;}
+.chip{padding:7px 16px;border-radius:50px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--border2);background:transparent;color:var(--muted2);font-family:'Manrope',sans-serif;transition:all .15s;}
+.chip:hover{border-color:var(--orange);color:var(--orange);}
+.chip.active{background:var(--orange-glow);border-color:var(--orange);color:var(--orange);}
 
-.toggle-slider {
-  position: absolute;
-  inset: 0;
-  background: var(--surface3);
-  border-radius: 22px;
-  cursor: pointer;
-  transition: 0.3s;
-  border: 1px solid var(--border2);
-}
+/* TERMINAL CARDS */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.tcard{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:22px;transition:all .25s;position:relative;overflow:hidden;}
+.tcard::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--orange),var(--orange-light));opacity:0;transition:opacity .2s;}
+.tcard:hover{border-color:rgba(249,115,22,0.3);transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,0.3);}
+.tcard:hover::after{opacity:1;}
+.tcard.act{border-color:rgba(34,197,94,0.2);}
+.dot{width:7px;height:7px;border-radius:50%;}
+.dot-g{background:var(--green);box-shadow:0 0 6px var(--green);}
+.dot-r{background:var(--red);box-shadow:0 0 6px var(--red);}
 
-.toggle-slider::before {
-  content: '';
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  left: 2px;
-  top: 2px;
-  background: var(--muted);
-  border-radius: 50%;
-  transition: 0.3s;
-}
+/* DISPUTES */
+.dcard{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:18px 20px;margin-bottom:10px;display:flex;align-items:center;gap:16px;transition:all .2s;}
+.dcard:hover{border-color:rgba(249,115,22,0.25);}
 
-.toggle input:checked + .toggle-slider { background: var(--orange); border-color: var(--orange); }
-.toggle input:checked + .toggle-slider::before { transform: translateX(18px); background: white; }
+/* REFERRAL */
+.rcard{background:linear-gradient(135deg,rgba(249,115,22,0.1),rgba(249,115,22,0.04));border:1px solid rgba(249,115,22,0.25);border-radius:var(--radius);padding:28px;margin-bottom:20px;position:relative;overflow:hidden;}
+.rcard::before{content:'₿';position:absolute;font-size:200px;right:-30px;top:-30px;color:rgba(249,115,22,0.04);line-height:1;}
+.rlink{background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:16px;}
+.rlinkv{font-size:13px;color:var(--orange);font-weight:600;font-family:monospace;}
+.rstats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.rstat{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:22px;text-align:center;}
+.rstatv{font-size:28px;font-weight:800;color:var(--orange);}
+.rstatl{font-size:12px;color:var(--muted2);margin-top:6px;font-weight:600;}
 
-/* CHIP TABS */
-.chip-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+/* NOTIFICATIONS PANEL */
+.npanel{position:fixed;top:66px;right:20px;width:320px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,0.5);z-index:200;display:none;}
+.npanel.open{display:block;}
+.nph{padding:16px 18px;border-bottom:1px solid var(--border2);display:flex;justify-content:space-between;align-items:center;}
+.npt{font-size:14px;font-weight:800;}
+.ni{padding:14px 18px;border-bottom:1px solid var(--border2);display:flex;gap:12px;align-items:flex-start;transition:background .15s;}
+.ni:hover{background:var(--surface2);}
+.ni:last-child{border-bottom:none;}
+.nd{width:8px;height:8px;border-radius:50%;background:var(--orange);margin-top:5px;flex-shrink:0;}
+.nt2{font-size:13px;line-height:1.5;font-weight:500;}
+.ntm{font-size:11px;color:var(--muted);margin-top:3px;font-weight:500;}
 
-.chip {
-  padding: 8px 20px;
-  border-radius: 50px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid var(--border2);
-  background: transparent;
-  color: var(--muted2);
-  font-family: 'Inter', sans-serif;
-  transition: all 0.2s;
-}
+/* MODAL */
+.moverlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:none;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(6px);}
+.moverlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;width:500px;max-width:92vw;animation:fi .2s ease;}
+.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+.mt{font-size:20px;font-weight:800;letter-spacing:-0.3px;}
+.mc{background:var(--surface2);border:none;color:var(--muted2);font-size:18px;cursor:pointer;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.mc:hover{background:var(--surface3);color:var(--text);}
 
-.chip:hover { border-color: var(--orange); color: var(--orange); }
-.chip.active { background: var(--orange-glow); border-color: var(--orange); color: var(--orange); }
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 20px;font-size:14px;font-weight:600;z-index:9999;display:none;align-items:center;gap:10px;box-shadow:0 10px 40px rgba(0,0,0,0.4);max-width:340px;animation:ti .3s cubic-bezier(0.16,1,0.3,1);}
+.toast.show{display:flex;}
+.toast.success{border-color:rgba(34,197,94,0.3);}
+.toast.error{border-color:rgba(239,68,68,0.3);}
+.toast.info{border-color:rgba(59,130,246,0.3);}
+@keyframes ti{from{opacity:0;transform:translateY(10px) scale(0.97);}to{opacity:1;transform:translateY(0) scale(1);}}
 
-/* EMPTY STATE */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--muted);
-}
+/* WALLET */
+.wbox{background:linear-gradient(135deg,rgba(249,115,22,0.08),rgba(249,115,22,0.04));border:1.5px solid rgba(249,115,22,0.25);border-radius:var(--radius);padding:22px 24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;}
+.wlbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;}
+.waddr{font-size:13px;color:var(--orange);font-family:monospace;font-weight:600;}
+.ratebox{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 20px;text-align:center;flex-shrink:0;}
+.ratev{font-size:26px;font-weight:800;color:var(--orange);}
+.ratel{font-size:11px;color:var(--muted);font-weight:600;margin-top:2px;}
 
-.empty-icon { font-size: 48px; margin-bottom: 16px; }
-.empty-text { font-size: 14px; }
+/* PROGRESS */
+.pw{background:var(--surface2);border-radius:50px;height:6px;overflow:hidden;}
+.pb{height:100%;background:linear-gradient(90deg,var(--orange),var(--orange-light));border-radius:50px;}
 
-/* MODAL OVERLAY */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.7);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(4px);
-}
+/* SEP */
+.sep{height:1px;background:var(--border2);margin:20px 0;}
 
-.modal-overlay.open { display: flex; }
+/* PROFILE */
+.avatar{width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,var(--orange),var(--orange-light));display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:900;color:white;margin:0 auto 16px;}
 
-.modal {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 32px;
-  width: 480px;
-  max-width: 90vw;
-}
+/* STEPS */
+.stepsl{display:flex;flex-direction:column;gap:14px;}
+.stepi{display:flex;gap:14px;align-items:flex-start;}
+.stepn{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--orange),var(--orange-light));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;color:white;}
+.stept{font-size:13px;color:var(--muted2);line-height:1.6;font-weight:500;padding-top:4px;}
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px;}
 
-.modal-title { font-size: 18px; font-weight: 700; }
-.modal-close { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
-
-/* NOTIFICATION */
-.notification {
-  position: fixed;
-  top: 80px;
-  right: 24px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  z-index: 9999;
-  display: none;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-  animation: slideIn 0.3s ease;
-}
-
-.notification.show { display: flex; }
-.notification.success { border-color: rgba(34,197,94,0.4); }
-.notification.error { border-color: rgba(239,68,68,0.4); }
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-/* DEPOSIT GRID */
-.deposit-wallet {
-  background: var(--surface);
-  border: 1px solid rgba(249,115,22,0.3);
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.wallet-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-.wallet-address { font-size: 14px; font-family: 'Courier New', monospace; color: var(--orange); }
-
-.rate-badge {
-  background: var(--orange-glow);
-  border: 1px solid rgba(249,115,22,0.3);
-  border-radius: 12px;
-  padding: 12px 20px;
-  text-align: right;
-}
-
-.rate-value { font-size: 28px; font-weight: 700; color: var(--orange); }
-.rate-label { font-size: 11px; color: var(--muted); }
-
-/* SCROLLBAR */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--surface); }
-::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--orange); }
-
-@media (max-width: 768px) {
-  .stats-grid { grid-template-columns: 1fr 1fr; }
-  .main { padding: 16px; }
-  .navbar { padding: 0 16px; }
-  .login-card { width: 90vw; padding: 32px 24px; }
-}
+@media(max-width:900px){.sr{grid-template-columns:repeat(3,1fr);}
+.gs{grid-template-columns:1fr;}.content{padding:16px;}.topbar{padding:0 16px;}.tsearch{display:none;}}
+@media(max-width:600px){.sr{grid-template-columns:1fr 1fr;}.g2,.g3{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
 
-<!-- NOTIFICATION -->
-<div class="notification" id="notification">
-  <span id="notification-icon">✓</span>
-  <span id="notification-text"></span>
+<div class="toast" id="toast"><span id="ti"></span><span id="tt"></span></div>
+
+<div class="npanel" id="npanel">
+  <div class="nph"><div class="npt">Сповіщення</div><button class="btn bg bsm" onclick="document.getElementById('npanel').classList.remove('open')">✕</button></div>
+  <div class="ni"><div class="nd"></div><div><div class="nt2">Ордер #775060 виконано успішно</div><div class="ntm">2 хвилини тому</div></div></div>
+  <div class="ni"><div class="nd" style="background:var(--red)"></div><div><div class="nt2">Диспут #892 відкрито по ордеру #774900</div><div class="ntm">18 хвилин тому</div></div></div>
+  <div class="ni"><div class="nd" style="background:var(--green)"></div><div><div class="nt2">Депозит 166.50 USDT зараховано</div><div class="ntm">2 години тому</div></div></div>
+  <div class="ni"><div class="nd" style="background:var(--blue)"></div><div><div class="nt2">Реферал зареєструвався по вашому посиланню</div><div class="ntm">5 годин тому</div></div></div>
 </div>
 
-<!-- ============ LOGIN ============ -->
-<div id="login-screen">
-  <div class="login-card">
-    <div class="login-logo">
-      <div class="logo-text">P2P UAH</div>
-      <div class="logo-sub">Платформа P2P платежів</div>
-    </div>
-    <div class="login-title">Вхід до кабінету</div>
-    <div class="login-desc">Введіть логін та пароль трейдера</div>
-
-    <div class="form-group">
-      <label class="form-label">Логін</label>
-      <input type="text" class="form-input" id="login-input" placeholder="Введіть логін" autocomplete="off">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Пароль</label>
-      <input type="password" class="form-input" id="password-input" placeholder="Введіть пароль">
-    </div>
-    <button class="login-btn" onclick="doLogin()">Увійти →</button>
-    <div class="login-error" id="login-error">❌ Невірний логін або пароль</div>
-    <div class="login-hint">Демо: логін <b>trader</b> / пароль <b>1234</b></div>
+<div class="moverlay" id="omodal">
+  <div class="modal">
+    <div class="mh"><div class="mt" id="omid">Ордер</div><button class="mc" onclick="closeModal()">✕</button></div>
+    <div id="omcontent"></div>
   </div>
 </div>
 
-<!-- ============ APP ============ -->
-<div id="app">
-  <!-- NAVBAR -->
-  <nav class="navbar">
-    <div class="nav-logo">P2P UAH</div>
-    <div class="nav-links">
-      <button class="nav-link active" onclick="showPage('dashboard', this)">Зведення</button>
-      <button class="nav-link" onclick="showPage('orders', this)">Ордери</button>
-      <button class="nav-link" onclick="showPage('new-terminal', this)">Новий термінал</button>
-      <button class="nav-link" onclick="showPage('terminals', this)">Термінали</button>
-      <button class="nav-link" onclick="showPage('payouts', this)">Виплати</button>
-      <button class="nav-link" onclick="showPage('deposits', this)">Депозити</button>
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-orb a"></div>
+  <div class="login-orb b"></div>
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">₴</div>
+      <div><div class="logo-name">P2P UAH</div><div class="logo-sub">Платформа P2P платежів</div></div>
     </div>
-    <div class="nav-right">
-      <div class="nav-balance">Баланс: <span id="nav-balance">135 723 ₴</span></div>
-      <div class="nav-user" onclick="doLogout()">
-        <span id="nav-username">trader</span> →
-      </div>
+    <div class="login-title">Вхід до кабінету</div>
+    <div class="login-desc">Введіть логін та пароль трейдера</div>
+    <div class="form-group"><label class="form-label">Логін</label><input type="text" class="form-input" id="lin" placeholder="Введіть логін" autocomplete="off"></div>
+    <div class="form-group"><label class="form-label">Пароль</label><input type="password" class="form-input" id="pin" placeholder="••••••••"></div>
+    <button class="login-btn" onclick="doLogin()">Увійти до кабінету →</button>
+    <div class="login-error" id="lerr">❌ Невірний логін або пароль</div>
+    <div class="login-hint">Демо: <b>trader</b> / <b>1234</b></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none;flex-direction:column;height:100vh">
+  <div class="topbar">
+    <div class="tl"><div class="tl-icon">₴</div><div class="tl-name">P2P UAH</div></div>
+    <div class="tnav">
+      <button class="nbtn active" onclick="sp('dashboard',this)">📊 Зведення</button>
+      <button class="nbtn" onclick="sp('orders',this)">📋 Ордери</button>
+      <button class="nbtn" onclick="sp('terminals',this)">💳 Термінали</button>
+      <button class="nbtn" onclick="sp('newterminal',this)">➕ Новий термінал</button>
+      <button class="nbtn" onclick="sp('payouts',this)">💸 Виплати</button>
+      <button class="nbtn" onclick="sp('deposits',this)">🏦 Депозити</button>
+      <button class="nbtn" onclick="sp('disputes',this)">⚖️ Диспути</button>
+      <button class="nbtn" onclick="sp('referral',this)">🤝 Реферальна</button>
+      <button class="nbtn" onclick="sp('profile',this)">👤 Профіль</button>
     </div>
-  </nav>
+    <div class="tr">
+      <input type="text" class="tsearch" placeholder="🔍 Пошук ордеру...">
+      <div class="nbell" onclick="toggleNP()">🔔<div class="nbadge">4</div></div>
+      <div class="tbal"><span class="bl">Баланс: </span><span class="bv" id="navbal">135 723 ₴</span></div>
+      <button class="ubtn" onclick="doLogout()"><span id="navuser">trader</span> ↗</button>
+    </div>
+  </div>
 
-  <div class="main">
+  <div class="content">
 
-    <!-- ===== DASHBOARD ===== -->
+    <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
-      <div class="page-title">Загальне зведення</div>
-
-      <div class="stats-grid">
-        <div class="stat-card highlight">
-          <div class="stat-label">Виконано / Усього</div>
-          <div class="stat-value orange">136 / 230</div>
-          <div class="stat-sub">Конверсія 59.1%</div>
+      <div class="ph">
+        <div><div class="ptitle">Загальне зведення</div><div class="psub">Оновлено щойно</div></div>
+        <div style="display:flex;gap:8px"><button class="btn bg bsm">📥 Експорт</button><button class="btn bp bsm">+ Новий ордер</button></div>
+      </div>
+      <div class="sr">
+        <div class="sc oc"><div class="slbl">⚡ Виконано/Усього</div><div class="sval or">136 / 230</div><div class="sch nt">Конверсія 59.1%</div></div>
+        <div class="sc"><div class="slbl">📈 Конверсія</div><div class="sval gr">59.13%</div><div class="sch up">▲ +4.2% тиждень</div></div>
+        <div class="sc"><div class="slbl">🔄 Оборот</div><div class="sval">201 314 ₴</div><div class="sch up">▲ +18K місяць</div></div>
+        <div class="sc oc"><div class="slbl">💰 Дохід</div><div class="sval or">10 081 ₴</div><div class="sch up">▲ +1 200 ₴</div></div>
+        <div class="sc"><div class="slbl">🏦 Депозит</div><div class="sval">326 886 ₴</div><div class="sch nt">Внесено всього</div></div>
+        <div class="sc"><div class="slbl">✅ Доступно</div><div class="sval gr">135 723 ₴</div><div class="sch nt">Баланс</div></div>
+      </div>
+      <div class="g2" style="margin-bottom:18px">
+        <div class="card">
+          <div style="padding:18px 22px 0">
+            <div class="chips"><button class="chip active">По днях</button><button class="chip">По місяцях</button></div>
+          </div>
+          <div class="ch" style="border-top:1px solid var(--border2);margin-top:12px">
+            <div><div class="ct">Аналітика ефективності</div><div class="cs">Оборот та конверсія</div></div>
+            <div style="display:flex;gap:14px;font-size:12px;font-weight:700"><span style="color:var(--orange)">● Конверсія</span><span style="color:var(--blue)">● Оборот</span></div>
+          </div>
+          <div style="padding:0 22px 22px"><canvas id="mainChart" height="140"></canvas></div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Конверсія</div>
-          <div class="stat-value green">59.13%</div>
-          <div class="stat-sub">За весь час</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Оборот</div>
-          <div class="stat-value">201 314 ₴</div>
-          <div class="stat-sub">Загальний</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Дохід</div>
-          <div class="stat-value orange">10 081.75 ₴</div>
-          <div class="stat-sub">Після комісії</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Внесений депозит</div>
-          <div class="stat-value">326 886 ₴</div>
-          <div class="stat-sub">Всього внесено</div>
-        </div>
-        <div class="stat-card highlight">
-          <div class="stat-label">Доступно для роботи</div>
-          <div class="stat-value green">135 723 ₴</div>
-          <div class="stat-sub">Поточний баланс</div>
+        <div class="card">
+          <div class="ch"><div><div class="ct">Термінали</div><div class="cs">Активних: 1 / 2</div></div><button class="btn bp bsm" onclick="sp('newterminal',null)">+ Додати</button></div>
+          <div class="cb" id="dashterminals"></div>
         </div>
       </div>
-
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Аналітика ефективності</div>
-            <div style="font-size:13px;color:var(--muted);margin-top:4px">Оборот, конверсія та кількість платежів</div>
-          </div>
-          <div class="chart-legend">
-            <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>Конверсія %</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Оборот</div>
-          </div>
-        </div>
-        <canvas id="mainChart" height="100"></canvas>
-      </div>
-
-      <div class="table-card">
-        <div class="table-header">
-          <div class="table-title">Останні ордери</div>
-          <button class="btn btn-orange btn-sm" onclick="showPage('orders', document.querySelector('[onclick*=\"orders\"]'))">Всі ордери →</button>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Термінал</th>
-              <th>Сума</th>
-              <th>Статус</th>
-              <th>Реквізит</th>
-              <th>Банк</th>
-              <th>Дохід</th>
-              <th>Дедлайн</th>
-            </tr>
-          </thead>
-          <tbody id="dashboard-orders">
-          </tbody>
-        </table>
+      <div class="card">
+        <div class="ch"><div class="ct">Останні ордери</div><button class="btn bo bsm" onclick="sp('orders',null)">Всі →</button></div>
+        <table><thead><tr><th>ID</th><th>Термінал</th><th>Сума</th><th>Статус</th><th>Реквізит</th><th>Дохід</th><th>Дедлайн</th><th></th></tr></thead><tbody id="dashorders"></tbody></table>
       </div>
     </div>
 
-    <!-- ===== ORDERS ===== -->
+    <!-- ORDERS -->
     <div class="page" id="page-orders">
-      <div class="page-title">Ордери</div>
-
-      <div class="filters">
-        <div class="filter-group">
-          <label class="filter-label">ID</label>
-          <input class="filter-input" placeholder="Пошук по ID">
-        </div>
-        <div class="filter-group">
-          <label class="filter-label">Статус</label>
-          <select class="filter-select">
-            <option>Всі</option>
-            <option>Виконано</option>
-            <option>Прострочено</option>
-            <option>Нове</option>
-            <option>Скасовано</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label class="filter-label">Термінал</label>
-          <select class="filter-select">
-            <option>Всі</option>
-            <option>Олег</option>
-            <option>Терм С.Д.</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label class="filter-label">Реквізит</label>
-          <input class="filter-input" placeholder="Номер картки">
-        </div>
-        <div class="filter-group">
-          <label class="filter-label">Сума від</label>
-          <input class="filter-input" type="number" placeholder="0">
-        </div>
-        <div class="filter-group">
-          <label class="filter-label">Дії</label>
-          <div class="filter-btns">
-            <button class="btn btn-orange">Пошук</button>
-            <button class="btn btn-outline">Скинути</button>
-            <button class="btn btn-outline" style="color:var(--green);border-color:rgba(34,197,94,0.3)">Excel</button>
-          </div>
-        </div>
+      <div class="ph">
+        <div><div class="ptitle">Ордери</div><div class="psub">Знайдено: <span style="color:var(--orange);font-weight:700">8</span> записів</div></div>
+        <div style="display:flex;gap:8px"><button class="btn bsu bsm">📊 Excel</button><button class="btn bp bsm">+ Новий</button></div>
       </div>
-
-      <div class="table-card">
-        <div class="table-header">
-          <div class="table-title">Мої ордери</div>
-          <div style="font-size:13px;color:var(--muted)">Знайдено: <span style="color:var(--orange);font-weight:600">8</span></div>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Створено</th>
-              <th>Термінал</th>
-              <th>Сума</th>
-              <th>Статус</th>
-              <th>Реквізит</th>
-              <th>Банк</th>
-              <th>Дохід</th>
-              <th>USDT</th>
-              <th>Дедлайн</th>
-              <th>Дії</th>
-            </tr>
-          </thead>
-          <tbody id="orders-table">
-          </tbody>
-        </table>
+      <div class="fbar">
+        <div class="fg"><label class="flbl">ID</label><input class="fi" placeholder="ID ордеру"></div>
+        <div class="fg"><label class="flbl">Статус</label><select class="fsel"><option>Всі</option><option>Виконано</option><option>Прострочено</option><option>Нове</option><option>Скасовано</option></select></div>
+        <div class="fg"><label class="flbl">Термінал</label><select class="fsel"><option>Всі</option><option>Олег</option><option>Терм С.Д.</option></select></div>
+        <div class="fg"><label class="flbl">Реквізит</label><input class="fi" placeholder="Номер картки"></div>
+        <div class="fg"><label class="flbl">Сума від</label><input class="fi" type="number" placeholder="0"></div>
+        <div class="fg"><label class="flbl">Дата</label><input class="fi" type="date"></div>
+        <div style="display:flex;gap:8px;align-items:flex-end"><button class="btn bp">Пошук</button><button class="btn bo">Скинути</button></div>
+      </div>
+      <div class="card">
+        <table><thead><tr><th>ID</th><th>Створено</th><th>Термінал</th><th>Сума</th><th>Статус</th><th>Реквізит</th><th>Банк</th><th>Дохід</th><th>USDT</th><th>Дедлайн</th><th>Дії</th></tr></thead><tbody id="orderstable"></tbody></table>
       </div>
     </div>
 
-    <!-- ===== NEW TERMINAL ===== -->
-    <div class="page" id="page-new-terminal">
-      <div class="page-title">Додавання картки (терміналу)</div>
-
-      <div style="display:grid;grid-template-columns:1fr 380px;gap:24px">
-        <div class="form-card">
-          <div class="chip-tabs">
-            <button class="chip active">Основне</button>
-            <button class="chip">Ліміти</button>
-            <button class="chip">Інтервали</button>
-            <button class="chip">Додатково</button>
-          </div>
-
-          <div class="form-section">
-            <div class="form-group">
-              <label class="form-label">Номер картки</label>
-              <input class="form-input" placeholder="0000 0000 0000 0000" id="term-card" maxlength="19" oninput="formatCard(this)">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Номер телефону (СБП)</label>
-              <input class="form-input" placeholder="+380 00 000 0000" id="term-phone">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Банк</label>
-              <select class="form-input" id="term-bank">
-                <option value="">— Оберіть банк —</option>
-                <option>ПриватБанк</option>
-                <option>Monobank</option>
-                <option>ПУМБ</option>
-                <option>Ощадбанк</option>
-                <option>Укрсиббанк</option>
-                <option>Райффайзен</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Ім'я отримувача</label>
-              <input class="form-input" placeholder="Іван І." id="term-name">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Назва терміналу</label>
-              <input class="form-input" placeholder="Термінал Іван І." id="term-title">
-            </div>
-            <button class="btn btn-orange" style="width:100%;padding:16px;font-size:15px" onclick="addTerminal()">Додати термінал</button>
-          </div>
-        </div>
-
-        <div>
-          <div class="steps-guide">
-            <div class="steps-guide-title">Як почати працювати</div>
-            <div class="steps-guide-list">
-              <div class="step-item">
-                <div class="step-num">1</div>
-                <div class="step-text">Перед активацією терміналу потрібно виконати тестове замовлення для перевірки що автоматика коректно закриває транзакції.</div>
-              </div>
-              <div class="step-item">
-                <div class="step-num">2</div>
-                <div class="step-text">Переконайтесь, що реквізит (картка або телефон) введено вірно. Система відстежуватиме вхідні платежі за цим реквізитом.</div>
-              </div>
-              <div class="step-item">
-                <div class="step-num">3</div>
-                <div class="step-text">Після цього ви отримаєте суму й реквізит, на який потрібно надіслати платіж.</div>
-              </div>
-              <div class="step-item">
-                <div class="step-num">4</div>
-                <div class="step-text">Коли кошти надійдуть — система перехопить push-сповіщення та надішле дані на платформу.</div>
-              </div>
-              <div class="step-item">
-                <div class="step-num">5</div>
-                <div class="step-text">Після успішного тесту активуйте реквізит і починайте приймати замовлення.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== TERMINALS ===== -->
+    <!-- TERMINALS -->
     <div class="page" id="page-terminals">
-      <div class="page-title">Термінали</div>
-
-      <div style="display:flex;gap:12px;margin-bottom:20px;align-items:center">
-        <input class="filter-input" placeholder="Пошук: назва, реквізит, ім'я" style="max-width:280px">
-        <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-        <span style="font-size:13px;color:var(--muted2)">Лише увімкнені</span>
-        <button class="btn btn-orange" style="margin-left:auto" onclick="showPage('new-terminal', null)">+ Додати термінал</button>
+      <div class="ph">
+        <div><div class="ptitle">Термінали</div><div class="psub">Активних: 1 / 2</div></div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <input class="fi" placeholder="Пошук..." style="width:200px">
+          <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+          <span style="font-size:13px;color:var(--muted2);font-weight:600">Лише увімкнені</span>
+          <button class="btn bp" onclick="sp('newterminal',null)">+ Додати термінал</button>
+        </div>
       </div>
-
-      <div class="terminals-grid" id="terminals-grid">
+      <div class="sr" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+        <div class="sc"><div class="slbl">💳 Всього</div><div class="sval">2</div></div>
+        <div class="sc"><div class="slbl">✅ Активних</div><div class="sval gr">1</div></div>
+        <div class="sc"><div class="slbl">🔄 Оборот сьогодні</div><div class="sval or">0 ₴</div></div>
+        <div class="sc"><div class="slbl">📦 Операцій</div><div class="sval">0</div></div>
       </div>
+      <div class="tgrid" id="termgrid"></div>
     </div>
 
-    <!-- ===== PAYOUTS ===== -->
-    <div class="page" id="page-payouts">
-      <div class="page-title">Виплати</div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px">
-        <div class="stat-card highlight">
-          <div class="stat-label">Доступно для виплат</div>
-          <div class="stat-value orange">135 723 ₴</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Виплачено всього</div>
-          <div class="stat-value">48 200 ₴</div>
-        </div>
-      </div>
-
-      <div class="form-card" style="margin-bottom:24px">
-        <div style="font-size:16px;font-weight:700;margin-bottom:20px">Нова виплата</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div class="form-group">
-            <label class="form-label">Номер картки</label>
-            <input class="form-input" placeholder="0000 0000 0000 0000">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Сума (₴)</label>
-            <input class="form-input" type="number" placeholder="1000">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Тип</label>
-            <select class="form-input">
-              <option>Банківська карта</option>
-              <option>СБП</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Order ID</label>
-            <input class="form-input" placeholder="payout-001">
+    <!-- NEW TERMINAL -->
+    <div class="page" id="page-newterminal">
+      <div class="ph"><div><div class="ptitle">Новий термінал</div><div class="psub">Додайте картку для прийому платежів</div></div></div>
+      <div class="gs">
+        <div class="card">
+          <div class="ch"><div class="ct">Дані терміналу</div></div>
+          <div class="cb">
+            <div class="chips" style="margin-bottom:20px">
+              <button class="chip active">Основне</button><button class="chip">Ліміти</button><button class="chip">Інтервали</button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div class="form-group"><label class="form-label">Номер картки</label><input class="form-input" placeholder="0000 0000 0000 0000" id="tcard" maxlength="19" oninput="fmtCard(this)"></div>
+              <div class="form-group"><label class="form-label">Телефон (СБП)</label><input class="form-input" placeholder="+380 00 000 0000" id="tphone"></div>
+              <div class="form-group"><label class="form-label">Банк</label><select class="form-input" id="tbank"><option value="">— Оберіть банк —</option><option>ПриватБанк</option><option>Monobank</option><option>ПУМБ</option><option>Ощадбанк</option><option>Укрсиббанк</option></select></div>
+              <div class="g2">
+                <div class="form-group"><label class="form-label">Ім'я отримувача</label><input class="form-input" placeholder="Іван І." id="tname"></div>
+                <div class="form-group"><label class="form-label">Назва терміналу</label><input class="form-input" placeholder="Мій термінал" id="ttitle"></div>
+              </div>
+              <div class="g2">
+                <div class="form-group"><label class="form-label">Ліміт / день (₴)</label><input class="form-input" type="number" placeholder="50000"></div>
+                <div class="form-group"><label class="form-label">Операцій / день</label><input class="form-input" type="number" placeholder="100"></div>
+              </div>
+              <button class="btn bp blg" style="width:100%" onclick="addTerminal()">✓ Додати термінал</button>
+            </div>
           </div>
         </div>
-        <button class="btn btn-orange" style="margin-top:8px;padding:14px 32px" onclick="showNotification('✅ Виплату створено!', 'success')">Створити виплату</button>
-      </div>
-
-      <div class="table-card">
-        <div class="table-header">
-          <div class="table-title">Мої виплати</div>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Order ID</th>
-              <th>Тип</th>
-              <th>Сума</th>
-              <th>Комісія</th>
-              <th>Статус</th>
-              <th>Реквізит</th>
-              <th>Банк</th>
-              <th>Створено</th>
-            </tr>
-          </thead>
-          <tbody id="payouts-table">
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ===== DEPOSITS ===== -->
-    <div class="page" id="page-deposits">
-      <div class="page-title">Депозити</div>
-
-      <div class="deposit-wallet">
         <div>
-          <div class="wallet-label">Ваш гаманець USDT (TRC-20)</div>
-          <div class="wallet-address" id="wallet-address">TZAQeyADF3JhYWhJzxmBcjxmZonCzyREdF</div>
-        </div>
-        <div style="display:flex;gap:12px;align-items:center">
-          <button class="btn btn-outline btn-sm" onclick="copyWallet()">📋 Копіювати</button>
-          <div class="rate-badge">
-            <div class="rate-value">44.79</div>
-            <div class="rate-label">USDT / UAH</div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="ch"><div class="ct">Як почати працювати</div></div>
+            <div class="cb">
+              <div class="stepsl">
+                <div class="stepi"><div class="stepn">1</div><div class="stept">Перед активацією виконайте тестове замовлення для перевірки автоматики.</div></div>
+                <div class="stepi"><div class="stepn">2</div><div class="stept">Переконайтесь що реквізит введено вірно. Система відстежуватиме платежі.</div></div>
+                <div class="stepi"><div class="stepn">3</div><div class="stept">Встановіть застосунок ProGrabber для перехоплення push-сповіщень.</div></div>
+                <div class="stepi"><div class="stepn">4</div><div class="stept">Поповніть депозит. Без активного депозиту ордери не надходитимуть.</div></div>
+                <div class="stepi"><div class="stepn">5</div><div class="stept">Увімкніть ордери та починайте приймати замовлення.</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ch"><div class="ct">Ліміти за замовчуванням</div></div>
+            <div class="cb">
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--muted2)">Мін. сума</span><span style="font-weight:700">100 ₴</span></div>
+                <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--muted2)">Макс. сума</span><span style="font-weight:700">50 000 ₴</span></div>
+                <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--muted2)">Дедлайн</span><span style="font-weight:700">10 хвилин</span></div>
+                <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--muted2)">Комісія</span><span style="font-weight:700;color:var(--orange)">2%</span></div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div class="filters" style="grid-template-columns:repeat(4,1fr)">
-        <div class="filter-group">
-          <label class="filter-label">ID</label>
-          <input class="filter-input" placeholder="ID">
-        </div>
-        <div class="filter-group">
-          <label class="filter-label">Хеш транзакції</label>
-          <input class="filter-input" placeholder="Хеш">
-        </div>
-        <div class="filter-group">
-          <label class="filter-label">Тип</label>
-          <select class="filter-select">
-            <option>Всі</option>
-            <option>Депозит</option>
-            <option>Виплата</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label class="filter-label">Дії</label>
-          <div class="filter-btns">
-            <button class="btn btn-orange">Пошук</button>
-            <button class="btn btn-outline">Скинути</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="table-card">
-        <div class="table-header">
-          <div class="table-title">Мої депозити</div>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Дата/час</th>
-              <th>Хеш</th>
-              <th>Сума USDT</th>
-              <th>Сума UAH</th>
-              <th>Курс</th>
-              <th>Опис</th>
-              <th>Тип</th>
-            </tr>
-          </thead>
-          <tbody id="deposits-table">
-          </tbody>
-        </table>
       </div>
     </div>
 
-  </div><!-- /main -->
-</div><!-- /app -->
+    <!-- PAYOUTS -->
+    <div class="page" id="page-payouts">
+      <div class="ph"><div><div class="ptitle">Виплати</div><div class="psub">Виведення коштів на картку</div></div></div>
+      <div class="sr" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+        <div class="sc oc"><div class="slbl">✅ Доступно</div><div class="sval or">135 723 ₴</div></div>
+        <div class="sc"><div class="slbl">📤 Виплачено</div><div class="sval">48 200 ₴</div></div>
+        <div class="sc"><div class="slbl">⏳ В обробці</div><div class="sval">0 ₴</div></div>
+        <div class="sc"><div class="slbl">💸 Комісія</div><div class="sval rd">1 560 ₴</div></div>
+      </div>
+      <div class="gs">
+        <div>
+          <div class="card" style="margin-bottom:18px">
+            <div class="ch"><div class="ct">Нова виплата</div></div>
+            <div class="cb">
+              <div class="g2">
+                <div class="form-group"><label class="form-label">Номер картки</label><input class="form-input" placeholder="0000 0000 0000 0000"></div>
+                <div class="form-group"><label class="form-label">Сума (₴)</label><input class="form-input" type="number" placeholder="1000"></div>
+                <div class="form-group"><label class="form-label">Тип</label><select class="form-input"><option>Банківська карта</option><option>СБП</option></select></div>
+                <div class="form-group"><label class="form-label">Order ID</label><input class="form-input" placeholder="payout-001"></div>
+              </div>
+              <div style="background:var(--surface2);border-radius:10px;padding:12px 16px;margin:16px 0;font-size:13px;color:var(--muted2)">💡 Комісія: <b style="color:var(--orange)">2%</b> від суми. Кошти надходять за 5–30 хвилин.</div>
+              <button class="btn bp blg" onclick="showToast('✅ Виплату створено!','success')">Створити виплату →</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ch"><div class="ct">Мої виплати</div></div>
+            <table><thead><tr><th>ID</th><th>Order ID</th><th>Тип</th><th>Сума</th><th>Комісія</th><th>Статус</th><th>Реквізит</th><th>Банк</th><th>Дата</th></tr></thead><tbody id="payoutstable"></tbody></table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">Статистика виплат</div></div>
+          <div class="cb">
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:var(--muted2)">Успішність</span><span style="font-size:13px;font-weight:700;color:var(--green)">2 / 3</span></div><div class="pw"><div class="pb" style="width:66%"></div></div></div>
+              <div class="sep"></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--muted2);font-size:13px">Успішних</span><span style="font-weight:700;color:var(--green)">2</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--muted2);font-size:13px">Відмовлено</span><span style="font-weight:700;color:var(--red)">1</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--muted2);font-size:13px">Виплачено</span><span style="font-weight:700">3 500 ₴</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--muted2);font-size:13px">Комісій</span><span style="font-weight:700;color:var(--red)">86 ₴</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEPOSITS -->
+    <div class="page" id="page-deposits">
+      <div class="ph"><div><div class="ptitle">Депозити</div><div class="psub">Поповнення через USDT TRC-20</div></div></div>
+      <div class="wbox">
+        <div style="flex:1"><div class="wlbl">Гаманець USDT (TRC-20)</div><div class="waddr" id="waddr">TZAQeyADF3JhYWhJzxmBcjxmZonCzyREdF</div></div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="btn bo bsm" onclick="copyW()">📋 Копіювати</button>
+          <div class="ratebox"><div class="ratev">44.79</div><div class="ratel">USDT / UAH</div></div>
+        </div>
+      </div>
+      <div class="sr" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+        <div class="sc oc"><div class="slbl">💰 Внесено USDT</div><div class="sval or">1 808</div></div>
+        <div class="sc"><div class="slbl">₴ В гривнях</div><div class="sval">81 121 ₴</div></div>
+        <div class="sc"><div class="slbl">📊 Середній курс</div><div class="sval">44.83</div></div>
+        <div class="sc"><div class="slbl">📅 Депозитів</div><div class="sval">3</div></div>
+      </div>
+      <div class="fbar">
+        <div class="fg"><label class="flbl">ID</label><input class="fi" placeholder="ID"></div>
+        <div class="fg"><label class="flbl">Хеш</label><input class="fi" placeholder="Хеш транзакції"></div>
+        <div class="fg"><label class="flbl">Тип</label><select class="fsel"><option>Всі</option><option>Депозит</option><option>Виплата</option></select></div>
+        <div style="display:flex;gap:8px;align-items:flex-end"><button class="btn bp">Пошук</button><button class="btn bo">Скинути</button></div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">Мої депозити</div></div>
+        <table><thead><tr><th>Дата/час</th><th>Хеш</th><th>Сума USDT</th><th>Сума UAH</th><th>Курс</th><th>Опис</th><th>Тип</th></tr></thead><tbody id="depstable"></tbody></table>
+      </div>
+    </div>
+
+    <!-- DISPUTES -->
+    <div class="page" id="page-disputes">
+      <div class="ph">
+        <div><div class="ptitle">Диспути</div><div class="psub">Спірні транзакції та апеляції</div></div>
+        <div style="display:flex;gap:8px"><button class="btn bo bsm">📊 Архів</button><button class="btn bp bsm">+ Відкрити диспут</button></div>
+      </div>
+      <div class="sr" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+        <div class="sc"><div class="slbl">📋 Всього</div><div class="sval">3</div></div>
+        <div class="sc oc"><div class="slbl">⏳ Відкритих</div><div class="sval or">1</div></div>
+        <div class="sc"><div class="slbl">✅ Виграно</div><div class="sval gr">1</div></div>
+        <div class="sc"><div class="slbl">❌ Програно</div><div class="sval rd">1</div></div>
+      </div>
+      <div class="chips" style="margin-bottom:16px">
+        <button class="chip active">Всі</button><button class="chip">Нові</button><button class="chip">В обробці</button><button class="chip">Вирішені</button>
+      </div>
+      <div id="displist"></div>
+    </div>
+
+    <!-- REFERRAL -->
+    <div class="page" id="page-referral">
+      <div class="ph"><div><div class="ptitle">Реферальна програма</div><div class="psub">Запрошуйте трейдерів та заробляйте</div></div></div>
+      <div class="rcard">
+        <div style="font-size:13px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">Ваша винагорода</div>
+        <div style="font-size:36px;font-weight:900;letter-spacing:-1px">10% від доходу <span style="background:linear-gradient(90deg,var(--orange),var(--orange-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">рефералів</span></div>
+        <div style="font-size:14px;color:var(--muted2);margin-top:8px;font-weight:500">Пожиттєво, без обмежень суми</div>
+        <div class="rlink"><div class="rlinkv" id="reflink">https://p2puah.io/ref/trader_abc123</div><button class="btn bp bsm" onclick="copyRef()">📋 Копіювати</button></div>
+      </div>
+      <div class="rstats">
+        <div class="rstat"><div class="rstatv">3</div><div class="rstatl">Запрошено</div></div>
+        <div class="rstat"><div class="rstatv">2</div><div class="rstatl">Активних</div></div>
+        <div class="rstat"><div class="rstatv" style="color:var(--green)">840 ₴</div><div class="rstatl">Зароблено</div></div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">Мої реферали</div></div>
+        <table><thead><tr><th>Трейдер</th><th>Дата</th><th>Оборот</th><th>Ваш дохід</th><th>Статус</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:700">trader_x92</td><td style="color:var(--muted2)">05.03.2026</td><td style="font-weight:700">42 000 ₴</td><td style="color:var(--green);font-weight:700">+420 ₴</td><td><span class="badge bg-gr">Активний</span></td></tr>
+          <tr><td style="font-weight:700">user_777</td><td style="color:var(--muted2)">18.03.2026</td><td style="font-weight:700">42 000 ₴</td><td style="color:var(--green);font-weight:700">+420 ₴</td><td><span class="badge bg-gr">Активний</span></td></tr>
+          <tr><td style="font-weight:700">noname_22</td><td style="color:var(--muted2)">22.04.2026</td><td style="color:var(--muted2)">0 ₴</td><td style="color:var(--muted2)">0 ₴</td><td><span class="badge bg-gy">Не активний</span></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="page" id="page-profile">
+      <div class="ph"><div><div class="ptitle">Профіль</div><div class="psub">Налаштування акаунту</div></div></div>
+      <div class="gs">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card">
+            <div class="ch"><div class="ct">Особисті дані</div></div>
+            <div class="cb">
+              <div class="g2">
+                <div class="form-group"><label class="form-label">Логін</label><input class="form-input" value="trader"></div>
+                <div class="form-group"><label class="form-label">Email</label><input class="form-input" placeholder="email@example.com"></div>
+                <div class="form-group"><label class="form-label">Telegram</label><input class="form-input" placeholder="@username"></div>
+                <div class="form-group"><label class="form-label">Часовий пояс</label><select class="form-input"><option>UTC+2 (Київ)</option><option>UTC+3</option></select></div>
+              </div>
+              <button class="btn bp" style="margin-top:8px" onclick="showToast('✅ Дані збережено','success')">Зберегти зміни</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ch"><div class="ct">Зміна пароля</div></div>
+            <div class="cb">
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <div class="form-group"><label class="form-label">Поточний пароль</label><input class="form-input" type="password" placeholder="••••••••"></div>
+                <div class="form-group"><label class="form-label">Новий пароль</label><input class="form-input" type="password" placeholder="••••••••"></div>
+                <div class="form-group"><label class="form-label">Підтвердити</label><input class="form-input" type="password" placeholder="••••••••"></div>
+                <button class="btn bp" style="width:fit-content" onclick="showToast('✅ Пароль змінено','success')">Змінити пароль</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card">
+            <div class="cb" style="text-align:center">
+              <div class="avatar">T</div>
+              <div style="font-size:20px;font-weight:800">trader</div>
+              <div style="font-size:13px;color:var(--muted2);margin-top:4px">Трейдер</div>
+              <div class="sep"></div>
+              <div style="display:flex;flex-direction:column;gap:12px;text-align:left">
+                <div style="display:flex;justify-content:space-between"><span style="color:var(--muted2);font-size:13px">Реєстрація</span><span style="font-weight:700">01.07.2025</span></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:var(--muted2);font-size:13px">Статус</span><span class="badge bg-gr">Активний</span></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:var(--muted2);font-size:13px">Рівень</span><span class="badge bg-or">⭐ Стандарт</span></div>
+                <div style="display:flex;justify-content:space-between"><span style="color:var(--muted2);font-size:13px">Верифікація</span><span class="badge bg-gr">✓ Пройдено</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ch"><div class="ct">Сповіщення</div></div>
+            <div class="cb">
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:600">Нові ордери</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:600">Виконані ордери</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:600">Диспути</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:600">Депозити</span><label class="toggle"><input type="checkbox"><span class="slider"></span></label></div>
+              </div>
+            </div>
+          </div>
+          <button class="btn bda" style="width:100%;padding:14px;font-size:14px" onclick="doLogout()">🚪 Вийти з акаунту</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <script>
-// ===== DATA =====
-const USERS = { trader: '1234', admin: 'admin123' };
-
-const ORDERS = [
-  { id: 775053, created: '28.03.2026 11:17', terminal: 'Олег', amount: 564, status: 'Прострочено', cred: '5457 0825 4291 7054', bank: 'Приват Банк', income: 27.64, usdt: 12.52, deadline: '28.03 11:27' },
-  { id: 775052, created: '28.03.2026 11:16', terminal: 'Олег', amount: 525, status: 'Прострочено', cred: '5457 0825 4291 7054', bank: 'Приват Банк', income: 25.73, usdt: 11.65, deadline: '28.03 11:26' },
-  { id: 775050, created: '28.03.2026 11:15', terminal: 'Олег', amount: 868, status: 'Виконано', cred: '5457 0825 4291 7054', bank: 'Приват Банк', income: 42.53, usdt: 19.27, deadline: '28.03 11:25' },
-  { id: 775049, created: '28.03.2026 11:14', terminal: 'Олег', amount: 512, status: 'Прострочено', cred: '5457 0825 4291 7054', bank: 'Приват Банк', income: 25.09, usdt: 11.37, deadline: '28.03 11:24' },
-  { id: 775045, created: '27.03.2026 18:33', terminal: 'Терм С.Д.', amount: 1200, status: 'Виконано', cred: '5355 2800 4394 4980', bank: 'ПУМБ', income: 58.80, usdt: 26.64, deadline: '27.03 18:43' },
-  { id: 775041, created: '27.03.2026 16:10', terminal: 'Олег', amount: 750, status: 'Скасовано', cred: '5457 0825 4291 7054', bank: 'Приват Банк', income: 0, usdt: 16.65, deadline: '27.03 16:20' },
-  { id: 775038, created: '27.03.2026 14:05', terminal: 'Терм С.Д.', amount: 990, status: 'Виконано', cred: '5355 2800 4394 4980', bank: 'ПУМБ', income: 48.51, usdt: 21.97, deadline: '27.03 14:15' },
-  { id: 775030, created: '26.03.2026 22:47', terminal: 'Олег', amount: 2000, status: 'Виконано', cred: '5457 0825 4291 7054', bank: 'Приват Банк', income: 98.00, usdt: 44.35, deadline: '26.03 22:57' },
+const USERS={trader:'1234',admin:'admin123'};
+const ORDERS=[
+  {id:775053,created:'28.03.2026 11:17',terminal:'Олег',amount:564,status:'Прострочено',cred:'5457 0825 4291 7054',bank:'Приват Банк',income:0,usdt:12.52,deadline:'28.03 11:27'},
+  {id:775052,created:'28.03.2026 11:16',terminal:'Олег',amount:525,status:'Прострочено',cred:'5457 0825 4291 7054',bank:'Приват Банк',income:0,usdt:11.65,deadline:'28.03 11:26'},
+  {id:775050,created:'28.03.2026 11:15',terminal:'Олег',amount:868,status:'Виконано',cred:'5457 0825 4291 7054',bank:'Приват Банк',income:42.53,usdt:19.27,deadline:'28.03 11:25'},
+  {id:775049,created:'28.03.2026 11:14',terminal:'Олег',amount:512,status:'Прострочено',cred:'5457 0825 4291 7054',bank:'Приват Банк',income:0,usdt:11.37,deadline:'28.03 11:24'},
+  {id:775045,created:'27.03.2026 18:33',terminal:'Терм С.Д.',amount:1200,status:'Виконано',cred:'5355 2800 4394 4980',bank:'ПУМБ',income:58.80,usdt:26.64,deadline:'27.03 18:43'},
+  {id:775041,created:'27.03.2026 16:10',terminal:'Олег',amount:750,status:'Скасовано',cred:'5457 0825 4291 7054',bank:'Приват Банк',income:0,usdt:16.65,deadline:'27.03 16:20'},
+  {id:775038,created:'27.03.2026 14:05',terminal:'Терм С.Д.',amount:990,status:'Виконано',cred:'5355 2800 4394 4980',bank:'ПУМБ',income:48.51,usdt:21.97,deadline:'27.03 14:15'},
+  {id:775030,created:'26.03.2026 22:47',terminal:'Олег',amount:2000,status:'Виконано',cred:'5457 0825 4291 7054',bank:'Приват Банк',income:98.00,usdt:44.35,deadline:'26.03 22:57'},
+];
+const TERMS=[
+  {name:'Олег',owner:'ОЛЕГ',bank:'ПРИВАТ БАНК',card:'5457 0825 4291 7054',active:true,ordersOn:true,dayLimit:'100M',dayOps:'100K'},
+  {name:'Терм С.Д.',owner:'САВЧУК Д.',bank:'ПУМБ',card:'5355 2800 4394 4980',active:false,ordersOn:false,dayLimit:'50K',dayOps:'100K'},
+];
+const DEPS=[
+  {date:'31.03.2026 22:14',hash:'870aae...77f',usdt:166.50,uah:7349.31,rate:44.14,desc:'-',type:'Deposit'},
+  {date:'22.03.2026 20:13',hash:'-',usdt:680,uah:30722.40,rate:45.18,desc:'Повернення депозиту 7131',type:'Deposit'},
+  {date:'20.02.2026 15:17',hash:'fa51b4...b6',usdt:962,uah:43049.50,rate:44.75,desc:'Виплатили 7204',type:'Deposit'},
+];
+const PAYS=[
+  {id:2854,order_id:'TEST-U-5',type:'CARD',amount:1000,commission:20,status:'COMPLETED',cred:'2202 2068 9886 4454',bank:'ПриватБанк',created:'11.09.2025 14:02'},
+  {id:2790,order_id:'TEST-U-3',type:'CARD',amount:2500,commission:50,status:'COMPLETED',cred:'5457 0825 4291 7054',bank:'Приват Банк',created:'05.09.2025 10:15'},
+  {id:2710,order_id:'TEST-U-1',type:'SBP',amount:800,commission:16,status:'FAILED',cred:'+38 066 123 4567',bank:'-',created:'01.09.2025 18:44'},
+];
+const DISPS=[
+  {id:892,order:'774900',amount:1500,status:'Нове',reason:'Фейковий чек',opened:'22.04.2026'},
+  {id:845,order:'773500',amount:2200,status:'Виграно',reason:'Помилкова сума',opened:'10.04.2026'},
+  {id:801,order:'772100',amount:800,status:'Програно',reason:'Немає оплати',opened:'02.04.2026'},
 ];
 
-const TERMINALS_DATA = [
-  { name: 'Олег', owner: 'ОЛЕГ', bank: 'ПРИВАТ БАНК', card: '5457 0825 4291 7054', active: true, ordersOn: true, dayLimit: '100,0M', dayOps: '100,0K', totalLimit: '—', totalOps: '—' },
-  { name: 'Терм С.Д.', owner: 'САВЧУК Д.', bank: 'ПУМБ', card: '5355 2800 4394 4980', active: false, ordersOn: false, dayLimit: '50K', dayOps: '100,0K', totalLimit: '30,1K', totalOps: '—' },
-];
-
-const DEPOSITS_DATA = [
-  { date: '31.03.2026 22:14', hash: '870aae59078bed5aba608e7444863619610d4a26a883f1b3db937b0c8eb5a77f', usdt: 166.50, uah: 7349.31, rate: 44.14, desc: '-', type: 'Deposit/Поповнення' },
-  { date: '22.03.2026 20:13', hash: '-', usdt: 680, uah: 30722.40, rate: 45.18, desc: 'В счет возврата депозита 7131', type: 'Deposit/Поповнення' },
-  { date: '20.02.2026 15:17', hash: 'fa51b4c4abd744c17dc9fb9314138c37f1bd2b0c2a5c80989634bc170ad4b7b6', usdt: 962, uah: 43049.50, rate: 44.75, desc: 'Виплатили 7204', type: 'Deposit/Поповнення' },
-];
-
-const PAYOUTS_DATA = [
-  { id: 2854, order_id: 'TEST-U-5', type: 'CARD', amount: 1000, commission: 20, status: 'COMPLETED', cred: '2202 2068 9886 4454', bank: 'ПриватБанк', created: '11.09.2025 14:02' },
-  { id: 2790, order_id: 'TEST-U-3', type: 'CARD', amount: 2500, commission: 50, status: 'COMPLETED', cred: '5457 0825 4291 7054', bank: 'Приват Банк', created: '05.09.2025 10:15' },
-  { id: 2710, order_id: 'TEST-U-1', type: 'SBP', amount: 800, commission: 16, status: 'FAILED', cred: '+38 066 123 4567', bank: '-', created: '01.09.2025 18:44' },
-];
-
-// ===== STATUS BADGE =====
-function statusBadge(status) {
-  const map = {
-    'Виконано': 'badge-green', 'COMPLETED': 'badge-green',
-    'Прострочено': 'badge-red', 'FAILED': 'badge-red',
-    'Скасовано': 'badge-gray', 'CANCELLED': 'badge-gray',
-    'Нове': 'badge-orange', 'NEW': 'badge-orange',
-    'В обробці': 'badge-blue', 'PROCESSING': 'badge-blue',
-  };
-  const cls = map[status] || 'badge-gray';
-  return `<span class="badge ${cls}">${status}</span>`;
+function sbadge(s){
+  const m={'Виконано':'bg-gr','COMPLETED':'bg-gr','Прострочено':'bg-rd','FAILED':'bg-rd','Скасовано':'bg-gy','CANCELLED':'bg-gy','Нове':'bg-or','NEW':'bg-or','В обробці':'bg-bl','Виграно':'bg-gr','Програно':'bg-rd'};
+  return `<span class="badge ${m[s]||'bg-gy'}">${s}</span>`;
 }
 
-// ===== RENDER TABLES =====
-function renderOrders(limit = null) {
-  const data = limit ? ORDERS.slice(0, limit) : ORDERS;
-  const tbody = document.getElementById(limit ? 'dashboard-orders' : 'orders-table');
-  if (!tbody) return;
-
-  tbody.innerHTML = data.map(o => `
-    <tr>
-      <td style="color:var(--orange);font-weight:600">#${o.id}</td>
-      ${!limit ? `<td style="color:var(--muted2)">${o.created}</td>` : ''}
-      <td>${o.terminal}</td>
-      <td style="font-weight:600">${o.amount} ₴</td>
-      <td>${statusBadge(o.status)}</td>
-      <td style="font-family:monospace;font-size:12px;color:var(--muted2)">${o.cred}</td>
-      <td>${o.bank}</td>
-      <td style="color:var(--green)">${o.income > 0 ? '+' + o.income.toFixed(2) + ' ₴' : '—'}</td>
-      ${!limit ? `<td style="color:var(--muted2)">${o.usdt}</td>` : ''}
-      <td style="color:var(--muted2)">${o.deadline}</td>
-      ${!limit ? `<td><button class="btn btn-outline btn-sm" onclick="showNotification('Ордер #${o.id} відмічено як виконано', 'success')">Виконати</button></td>` : ''}
-    </tr>
-  `).join('');
+function renderDashOrders(){
+  document.getElementById('dashorders').innerHTML=ORDERS.slice(0,5).map(o=>`<tr>
+    <td style="color:var(--orange);font-weight:800">#${o.id}</td>
+    <td style="font-weight:600">${o.terminal}</td>
+    <td style="font-weight:800">${o.amount} ₴</td>
+    <td>${sbadge(o.status)}</td>
+    <td style="font-family:monospace;font-size:12px;color:var(--muted2)">${o.cred}</td>
+    <td style="color:${o.income>0?'var(--green)':'var(--muted)'};font-weight:700">${o.income>0?'+'+o.income.toFixed(2)+' ₴':'—'}</td>
+    <td style="color:var(--muted2)">${o.deadline}</td>
+    <td><button class="btn bg bsm" onclick="openOM(${o.id})">👁</button></td>
+  </tr>`).join('');
 }
 
-function renderTerminals() {
-  const grid = document.getElementById('terminals-grid');
-  if (!grid) return;
-  grid.innerHTML = TERMINALS_DATA.map(t => `
-    <div class="terminal-card ${t.active ? 'active' : ''}">
-      <div class="terminal-header">
-        <div class="terminal-status">
-          <div class="status-dot ${t.active ? 'green' : 'red'}"></div>
-          <span style="color:${t.active ? 'var(--green)' : 'var(--red)'}">${t.name}</span>
+function renderDashTerms(){
+  document.getElementById('dashterminals').innerHTML=TERMS.map(t=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border2)">
+      <div class="dot ${t.active?'dot-g':'dot-r'}" style="width:10px;height:10px"></div>
+      <div style="flex:1"><div style="font-weight:700;font-size:14px">${t.name}</div><div style="font-size:12px;color:var(--muted2)">${t.bank} · ${t.card}</div></div>
+      <span class="badge ${t.active?'bg-gr':'bg-rd'}">${t.active?'Активний':'Неакт.'}</span>
+    </div>`).join('');
+}
+
+function renderOrders(){
+  document.getElementById('orderstable').innerHTML=ORDERS.map(o=>`<tr>
+    <td style="color:var(--orange);font-weight:800">#${o.id}</td>
+    <td style="color:var(--muted2);font-size:12px">${o.created}</td>
+    <td style="font-weight:600">${o.terminal}</td>
+    <td style="font-weight:800">${o.amount} ₴</td>
+    <td>${sbadge(o.status)}</td>
+    <td style="font-family:monospace;font-size:12px;color:var(--muted2)">${o.cred}</td>
+    <td style="color:var(--muted2)">${o.bank}</td>
+    <td style="color:${o.income>0?'var(--green)':'var(--muted)'};font-weight:700">${o.income>0?'+'+o.income.toFixed(2)+' ₴':'—'}</td>
+    <td style="color:var(--muted2)">${o.usdt}</td>
+    <td style="color:var(--muted2);font-size:12px">${o.deadline}</td>
+    <td style="display:flex;gap:6px">
+      <button class="btn bg bsm" onclick="openOM(${o.id})">👁</button>
+      ${o.status==='Прострочено'?`<button class="btn bsu bsm" onclick="showToast('✅ Ордер виконано','success')">✓</button>`:''}
+    </td>
+  </tr>`).join('');
+}
+
+function renderTerms(){
+  document.getElementById('termgrid').innerHTML=TERMS.map(t=>`
+    <div class="tcard ${t.active?'act':''}">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
+          <div class="dot ${t.active?'dot-g':'dot-r'}"></div>
+          <span style="color:${t.active?'var(--green)':'var(--red)'}">${t.active?'Активний':'Неактивний'}</span>
         </div>
-        <div style="cursor:pointer;color:var(--muted)">⚙</div>
+        <button class="btn bg bsm">⚙</button>
       </div>
-      <div class="terminal-name">${t.owner}</div>
-      <div class="terminal-bank">${t.bank}</div>
-      <div class="terminal-card-num">${t.card}</div>
-      <div class="terminal-stats">
-        <div>
-          <div class="terminal-stat-label">Оборот / день</div>
-          <div class="terminal-stat-value">0 / ${t.dayLimit} UAH</div>
-        </div>
-        <div>
-          <div class="terminal-stat-label">Операції / день</div>
-          <div class="terminal-stat-value">0 / ${t.dayOps} шт</div>
-        </div>
+      <div style="font-size:17px;font-weight:800;margin-top:12px;letter-spacing:-0.3px">${t.owner}</div>
+      <div style="font-size:12px;color:var(--muted2);font-weight:600;margin-top:2px">${t.bank}</div>
+      <div style="font-size:18px;font-weight:800;letter-spacing:3px;margin:16px 0;background:linear-gradient(90deg,var(--orange),var(--orange-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:'Courier New',monospace">${t.card}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:16px;border-top:1px solid var(--border2);margin-top:12px">
+        <div><div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px">Оборот/день</div><div style="font-size:13px;font-weight:700;margin-top:3px">0 / ${t.dayLimit}</div></div>
+        <div><div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px">Операції/день</div><div style="font-size:13px;font-weight:700;margin-top:3px">0 / ${t.dayOps}</div></div>
       </div>
-      <div style="display:flex;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border2);align-items:center">
-        <span class="badge ${t.active ? 'badge-green' : 'badge-red'}">${t.active ? 'Активний' : 'Неактивний'}</span>
-        <span class="badge badge-orange">Картка увімк.</span>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border2)">
+        <span class="badge ${t.active?'bg-gr':'bg-rd'}">${t.active?'Активний':'Неактивний'}</span>
+        <span class="badge bg-or">Картка ✓</span>
         <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
           <span style="font-size:12px;color:var(--muted)">Ордери</span>
-          <label class="toggle"><input type="checkbox" ${t.ordersOn ? 'checked' : ''}><span class="toggle-slider"></span></label>
+          <label class="toggle"><input type="checkbox" ${t.ordersOn?'checked':''}><span class="slider"></span></label>
         </div>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-function renderDeposits() {
-  const tbody = document.getElementById('deposits-table');
-  if (!tbody) return;
-  tbody.innerHTML = DEPOSITS_DATA.map(d => `
-    <tr>
-      <td style="color:var(--muted2)">${d.date}</td>
-      <td style="font-family:monospace;font-size:11px;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis">${d.hash}</td>
-      <td style="color:var(--orange);font-weight:600">${d.usdt}</td>
-      <td style="font-weight:600">${d.uah.toLocaleString()} ₴</td>
-      <td style="color:var(--muted2)">${d.rate}</td>
-      <td style="color:var(--muted2)">${d.desc}</td>
-      <td><span class="badge badge-blue" style="font-size:10px">${d.type}</span></td>
-    </tr>
-  `).join('');
+function renderDeps(){
+  document.getElementById('depstable').innerHTML=DEPS.map(d=>`<tr>
+    <td style="color:var(--muted2)">${d.date}</td>
+    <td style="font-family:monospace;font-size:11px;color:var(--muted)">${d.hash}</td>
+    <td style="color:var(--orange);font-weight:800">${d.usdt} USDT</td>
+    <td style="font-weight:700">${d.uah.toLocaleString()} ₴</td>
+    <td style="color:var(--muted2)">${d.rate}</td>
+    <td style="color:var(--muted2)">${d.desc}</td>
+    <td><span class="badge bg-bl">${d.type}</span></td>
+  </tr>`).join('');
 }
 
-function renderPayouts() {
-  const tbody = document.getElementById('payouts-table');
-  if (!tbody) return;
-  tbody.innerHTML = PAYOUTS_DATA.map(p => `
-    <tr>
-      <td style="color:var(--orange);font-weight:600">#${p.id}</td>
-      <td style="color:var(--muted2)">${p.order_id}</td>
-      <td><span class="badge badge-blue">${p.type}</span></td>
-      <td style="font-weight:600">${p.amount.toLocaleString()} ₴</td>
-      <td style="color:var(--red)">-${p.commission} ₴</td>
-      <td>${statusBadge(p.status)}</td>
-      <td style="font-family:monospace;font-size:12px;color:var(--muted2)">${p.cred}</td>
-      <td>${p.bank}</td>
-      <td style="color:var(--muted2)">${p.created}</td>
-    </tr>
-  `).join('');
+function renderPays(){
+  document.getElementById('payoutstable').innerHTML=PAYS.map(p=>`<tr>
+    <td style="color:var(--orange);font-weight:800">#${p.id}</td>
+    <td style="color:var(--muted2)">${p.order_id}</td>
+    <td><span class="badge bg-bl">${p.type}</span></td>
+    <td style="font-weight:800">${p.amount.toLocaleString()} ₴</td>
+    <td style="color:var(--red)">-${p.commission} ₴</td>
+    <td>${sbadge(p.status)}</td>
+    <td style="font-family:monospace;font-size:12px;color:var(--muted2)">${p.cred}</td>
+    <td>${p.bank}</td>
+    <td style="color:var(--muted2)">${p.created}</td>
+  </tr>`).join('');
 }
 
-// ===== CHART =====
-function initChart() {
-  const ctx = document.getElementById('mainChart');
-  if (!ctx) return;
+function renderDisps(){
+  const icons={'Нове':'⏳','Виграно':'✅','Програно':'❌'};
+  document.getElementById('displist').innerHTML=DISPS.map(d=>`
+    <div class="dcard">
+      <div style="width:44px;height:44px;border-radius:12px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${icons[d.status]||'❓'}</div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:800">Диспут #${d.id} · Ордер #${d.order}</div>
+        <div style="font-size:12px;color:var(--muted2);margin-top:2px">${d.reason} · Відкрито: ${d.opened}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <div style="font-size:16px;font-weight:800">${d.amount.toLocaleString()} ₴</div>
+        ${sbadge(d.status)}
+        <button class="btn bo bsm" onclick="showToast('📎 Деталі диспуту #${d.id}','info')">Деталі</button>
+      </div>
+    </div>`).join('');
+}
 
-  const labels = ['Лип', 'Серп', 'Вер', 'Жов', 'Лис', 'Гру', 'Січ', 'Лют', 'Бер'];
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Конверсія %',
-          data: [72, 85, 60, 88, 45, 70, 55, 80, 59],
-          borderColor: '#f97316',
-          backgroundColor: 'rgba(249,115,22,0.1)',
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: '#f97316',
-          pointRadius: 4,
-        },
-        {
-          label: 'Оборот (тис)',
-          data: [15, 28, 12, 35, 8, 22, 18, 30, 20],
-          borderColor: '#3b82f6',
-          backgroundColor: 'rgba(59,130,246,0.1)',
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: '#3b82f6',
-          pointRadius: 4,
-        }
+function initChart(){
+  const ctx=document.getElementById('mainChart');
+  if(!ctx)return;
+  new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:['Лип','Серп','Вер','Жов','Лис','Гру','Січ','Лют','Бер'],
+      datasets:[
+        {label:'Конверсія',data:[72,85,60,88,45,70,55,80,59],borderColor:'#f97316',backgroundColor:'rgba(249,115,22,0.08)',fill:true,tension:0.4,pointBackgroundColor:'#f97316',pointRadius:4},
+        {label:'Оборот',data:[15,28,12,35,8,22,18,30,20],borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.08)',fill:true,tension:0.4,pointBackgroundColor:'#3b82f6',pointRadius:4}
       ]
     },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#1c1c22',
-          titleColor: '#f1f1f3',
-          bodyColor: '#9b9baa',
-          borderColor: 'rgba(249,115,22,0.3)',
-          borderWidth: 1,
-        }
-      },
-      scales: {
-        x: {
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: { color: '#6b6b7a', font: { size: 12 } }
-        },
-        y: {
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: { color: '#6b6b7a', font: { size: 12 } }
-        }
-      }
+    options:{
+      responsive:true,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#18181c',titleColor:'#f4f4f6',bodyColor:'#8e8e9e',borderColor:'rgba(249,115,22,0.3)',borderWidth:1,titleFont:{family:'Manrope',weight:'700'},bodyFont:{family:'Manrope'}}},
+      scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a5a68',font:{family:'Manrope',size:12}}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a5a68',font:{family:'Manrope',size:12}}}}
     }
   });
 }
 
-// ===== NAVIGATION =====
-function showPage(pageId, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + pageId)?.classList.add('active');
+function sp(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id)?.classList.add('active');
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  else document.querySelectorAll('.nbtn').forEach(b=>{if(b.getAttribute('onclick')?.includes("'"+id+"'"))b.classList.add('active');});
+}
 
-  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  else {
-    document.querySelectorAll('.nav-link').forEach(l => {
-      if (l.getAttribute('onclick')?.includes(pageId)) l.classList.add('active');
-    });
+function doLogin(){
+  const l=document.getElementById('lin').value.trim();
+  const p=document.getElementById('pin').value;
+  if(USERS[l]&&USERS[l]===p){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='flex';
+    document.getElementById('navuser').textContent=l;
+    renderDashOrders();renderDashTerms();renderOrders();renderTerms();renderDeps();renderPays();renderDisps();
+    setTimeout(initChart,150);
+  }else{
+    document.getElementById('lerr').style.display='block';
+    document.getElementById('pin').value='';
   }
 }
 
-// ===== LOGIN =====
-function doLogin() {
-  const login = document.getElementById('login-input').value.trim();
-  const pass = document.getElementById('password-input').value;
+document.getElementById('pin').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('lin').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('pin').focus();});
 
-  if (USERS[login] && USERS[login] === pass) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    document.getElementById('nav-username').textContent = login;
-
-    renderOrders(5);
-    renderOrders();
-    renderTerminals();
-    renderDeposits();
-    renderPayouts();
-    setTimeout(initChart, 100);
-  } else {
-    document.getElementById('login-error').style.display = 'block';
-    document.getElementById('password-input').value = '';
-  }
+function doLogout(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('lin').value='';
+  document.getElementById('pin').value='';
+  document.getElementById('lerr').style.display='none';
 }
 
-document.getElementById('password-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') doLogin();
+function addTerminal(){
+  const card=document.getElementById('tcard').value;
+  const name=document.getElementById('tname').value;
+  const bank=document.getElementById('tbank').value;
+  const title=document.getElementById('ttitle').value;
+  if(!card||!name||!bank||!title){showToast('❌ Заповніть всі обовʼязкові поля','error');return;}
+  TERMS.push({name:title,owner:name.toUpperCase(),bank:bank.toUpperCase(),card,active:true,ordersOn:false,dayLimit:'50K',dayOps:'100K'});
+  ['tcard','tname','ttitle'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('tbank').value='';
+  showToast('✅ Термінал успішно додано!','success');
+  renderTerms();renderDashTerms();
+}
+
+function fmtCard(input){
+  let v=input.value.replace(/\D/g,'').slice(0,16);
+  input.value=v.replace(/(.{4})/g,'$1 ').trim();
+}
+
+function copyW(){navigator.clipboard.writeText(document.getElementById('waddr').textContent);showToast('📋 Адресу гаманця скопійовано!','success');}
+function copyRef(){navigator.clipboard.writeText(document.getElementById('reflink').textContent);showToast('📋 Реферальне посилання скопійовано!','success');}
+
+function toggleNP(){document.getElementById('npanel').classList.toggle('open');}
+
+function openOM(id){
+  const o=ORDERS.find(x=>x.id===id);if(!o)return;
+  document.getElementById('omid').textContent=`Ордер #${o.id}`;
+  document.getElementById('omcontent').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+      <div style="background:var(--surface2);border-radius:10px;padding:16px"><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">Термінал</div><div style="font-weight:700">${o.terminal}</div></div>
+      <div style="background:var(--surface2);border-radius:10px;padding:16px"><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">Сума</div><div style="font-weight:800;color:var(--orange);font-size:20px">${o.amount} ₴</div></div>
+      <div style="background:var(--surface2);border-radius:10px;padding:16px"><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">Статус</div>${sbadge(o.status)}</div>
+      <div style="background:var(--surface2);border-radius:10px;padding:16px"><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">Дохід</div><div style="font-weight:700;color:var(--green)">${o.income>0?'+'+o.income.toFixed(2)+' ₴':'—'}</div></div>
+    </div>
+    <div style="background:var(--surface2);border-radius:10px;padding:16px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">Реквізити</div>
+      <div style="font-family:monospace;font-size:16px;color:var(--orange);font-weight:700;letter-spacing:2px">${o.cred}</div>
+      <div style="font-size:13px;color:var(--muted2);margin-top:4px">${o.bank}</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted2);margin-bottom:20px">
+      <span>Створено: <b style="color:var(--text)">${o.created}</b></span>
+      <span>Дедлайн: <b style="color:var(--text)">${o.deadline}</b></span>
+      <span>USDT: <b style="color:var(--orange)">${o.usdt}</b></span>
+    </div>
+    <div style="display:flex;gap:10px">
+      ${o.status==='Прострочено'?`<button class="btn bsu" onclick="showToast('✅ Ордер виконано','success');closeModal()">✓ Виконати</button>`:''}
+      <button class="btn bda" onclick="showToast('⚖️ Диспут відкрито','info');closeModal()">⚖️ Диспут</button>
+      <button class="btn bo" onclick="closeModal()">Закрити</button>
+    </div>`;
+  document.getElementById('omodal').classList.add('open');
+}
+
+function closeModal(){document.getElementById('omodal').classList.remove('open');}
+document.getElementById('omodal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+document.addEventListener('click',e=>{
+  const p=document.getElementById('npanel');
+  if(p.classList.contains('open')&&!p.contains(e.target)&&!e.target.closest('.nbell'))p.classList.remove('open');
 });
 
-document.getElementById('login-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('password-input').focus();
-});
-
-function doLogout() {
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('login-input').value = '';
-  document.getElementById('password-input').value = '';
-  document.getElementById('login-error').style.display = 'none';
-}
-
-// ===== ADD TERMINAL =====
-function addTerminal() {
-  const card = document.getElementById('term-card').value;
-  const name = document.getElementById('term-name').value;
-  const bank = document.getElementById('term-bank').value;
-  const title = document.getElementById('term-title').value;
-
-  if (!card || !name || !bank || !title) {
-    showNotification('❌ Заповніть всі поля', 'error');
-    return;
-  }
-
-  TERMINALS_DATA.push({
-    name: title,
-    owner: name.toUpperCase(),
-    bank: bank.toUpperCase(),
-    card: card,
-    active: true,
-    ordersOn: false,
-    dayLimit: '50K',
-    dayOps: '100K',
-    totalLimit: '—',
-    totalOps: '—'
-  });
-
-  document.getElementById('term-card').value = '';
-  document.getElementById('term-name').value = '';
-  document.getElementById('term-bank').value = '';
-  document.getElementById('term-title').value = '';
-
-  showNotification('✅ Термінал додано!', 'success');
-  renderTerminals();
-}
-
-// ===== FORMAT CARD =====
-function formatCard(input) {
-  let val = input.value.replace(/\D/g, '').slice(0, 16);
-  input.value = val.replace(/(.{4})/g, '$1 ').trim();
-}
-
-// ===== COPY WALLET =====
-function copyWallet() {
-  const addr = document.getElementById('wallet-address').textContent;
-  navigator.clipboard.writeText(addr).then(() => {
-    showNotification('📋 Адресу скопійовано!', 'success');
-  });
-}
-
-// ===== NOTIFICATION =====
-function showNotification(text, type = 'success') {
-  const el = document.getElementById('notification');
-  document.getElementById('notification-text').textContent = text;
-  el.className = 'notification show ' + type;
-  setTimeout(() => el.classList.remove('show'), 3000);
+function showToast(text,type='success'){
+  const t=document.getElementById('toast');
+  document.getElementById('ti').textContent='';
+  document.getElementById('tt').textContent=text;
+  t.className=`toast show ${type}`;
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>t.classList.remove('show'),3500);
 }
 </script>
 </body>
