@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>P2P UAH</title>
+<title>FlowPay — Кабінет трейдера</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
@@ -16,38 +16,46 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--t);font-size:14px}
+.mono{font-family:'IBM Plex Mono',monospace}
+.dim{color:var(--t2)}
+.blue{color:var(--ac)}
+.green{color:var(--g)}
+.red{color:var(--r)}
+.bold{font-weight:600}
 
 /* LOGIN */
 #login{min-height:100vh;display:flex;align-items:center;justify-content:center}
 .lcard{background:var(--s1);border:1px solid var(--b2);border-radius:16px;padding:40px;width:400px}
-.lcard h1{font-size:20px;font-weight:700;margin-bottom:4px}
-.lcard p{font-size:13px;color:var(--t2);margin-bottom:28px}
-.lbl{display:block;font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.inp{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:11px 14px;color:var(--t);font-family:inherit;font-size:14px;outline:none;transition:border .2s;margin-bottom:14px}
+.lcard h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.lcard .lsub{font-size:13px;color:var(--t2);margin-bottom:28px}
+.lbl{display:block;font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;margin-top:14px}
+.lbl:first-of-type{margin-top:0}
+.inp{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:11px 14px;color:var(--t);font-family:inherit;font-size:14px;outline:none;transition:border .2s}
 .inp:focus{border-color:var(--ac)}
 .inp::placeholder{color:var(--t3)}
 select.inp{cursor:pointer}
 option{background:var(--s2)}
-.lbtn{width:100%;padding:12px;background:var(--ac);border:none;border-radius:8px;color:#fff;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s}
+textarea.inp{resize:vertical}
+.lbtn{width:100%;padding:12px;background:var(--ac);border:none;border-radius:8px;color:#fff;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s;margin-top:20px}
 .lbtn:hover{background:var(--ac2)}
 .lerr{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--r);margin-top:10px;display:none}
-.lhint{text-align:center;font-size:12px;color:var(--t3);margin-top:16px}
+.lhint{text-align:center;font-size:12px;color:var(--t3);margin-top:14px}
 
 /* APP */
 #app{display:none;flex-direction:column;height:100vh}
 
 /* NAV */
 nav{background:var(--s1);border-bottom:1px solid var(--b2);height:52px;display:flex;align-items:center;padding:0 20px;gap:2px;position:sticky;top:0;z-index:100}
-.logo{font-size:16px;font-weight:700;color:var(--ac);margin-right:24px;letter-spacing:-0.3px}
+.logo{font-size:16px;font-weight:700;color:var(--ac);margin-right:24px;letter-spacing:-0.3px;flex-shrink:0}
 .navl{display:flex;gap:1px;flex:1;overflow-x:auto}
 .navl::-webkit-scrollbar{display:none}
 .nb{padding:6px 12px;border-radius:6px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;white-space:nowrap;border:none;background:none;font-family:inherit;transition:all .15s}
 .nb:hover{color:var(--t);background:var(--s2)}
 .nb.on{color:var(--ac);background:var(--acg)}
-.navr{display:flex;align-items:center;gap:8px;margin-left:auto}
+.navr{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
 .nbal{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:6px 12px;font-size:13px}
 .nbal span{color:var(--ac);font-family:'IBM Plex Mono',monospace;font-weight:500}
-.nuser{background:var(--acg);border:1px solid var(--b1);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--ac);cursor:pointer;font-family:inherit;border:none}
+.nuser{background:var(--acg);border:1px solid var(--b1);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--ac);cursor:pointer;font-family:inherit}
 
 /* MAIN */
 .main{flex:1;overflow-y:auto;padding:24px}
@@ -57,41 +65,35 @@ nav{background:var(--s1);border-bottom:1px solid var(--b2);height:52px;display:f
 /* PAGE */
 .pg{display:none}
 .pg.on{display:block}
-.pgt{font-size:20px;font-weight:700;margin-bottom:20px}
+.pgt{font-size:20px;font-weight:700;margin-bottom:18px}
+.phrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
 
 /* STATS */
-.stats{display:grid;gap:12px;margin-bottom:20px}
-.stats.c3{grid-template-columns:repeat(3,1fr)}
-.stats.c4{grid-template-columns:repeat(4,1fr)}
-.stats.c6{grid-template-columns:repeat(6,1fr)}
-.st{background:var(--s1);border:1px solid var(--b2);border-radius:10px;padding:18px}
+.sgrid{display:grid;gap:10px;margin-bottom:16px}
+.sgrid.c3{grid-template-columns:repeat(3,1fr)}
+.sgrid.c4{grid-template-columns:repeat(4,1fr)}
+.sgrid.c6{grid-template-columns:repeat(6,1fr)}
+.st{background:var(--s1);border:1px solid var(--b2);border-radius:10px;padding:16px 18px}
 .st.hi{border-color:var(--b1)}
-.stl{font-size:11px;color:var(--t2);margin-bottom:8px;font-weight:500}
-.stv{font-size:22px;font-weight:700;font-family:'IBM Plex Mono',monospace}
+.stl{font-size:11px;color:var(--t2);margin-bottom:6px;font-weight:500}
+.stv{font-size:20px;font-weight:700;font-family:'IBM Plex Mono',monospace}
 .stv.blue{color:var(--ac)}
 .stv.green{color:var(--g)}
 .stv.red{color:var(--r)}
-.sts{font-size:12px;color:var(--t3);margin-top:4px}
 
 /* CARD */
-.card{background:var(--s1);border:1px solid var(--b2);border-radius:10px;overflow:hidden;margin-bottom:16px}
-.ch{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--b2)}
+.card{background:var(--s1);border:1px solid var(--b2);border-radius:10px;overflow:hidden;margin-bottom:14px}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--b2)}
 .ct{font-size:14px;font-weight:700}
-.cb{padding:18px}
+.cb{padding:16px}
 
 /* TABLE */
 table{width:100%;border-collapse:collapse}
-thead th{padding:10px 14px;font-size:11px;font-weight:600;color:var(--t2);text-align:left;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--b2);background:var(--s2)}
+thead th{padding:9px 12px;font-size:11px;font-weight:600;color:var(--t2);text-align:left;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--b2);background:var(--s2);white-space:nowrap}
 tbody tr{border-bottom:1px solid rgba(255,255,255,0.03);transition:background .1s}
 tbody tr:hover{background:var(--s2)}
 tbody tr:last-child{border-bottom:none}
-tbody td{padding:10px 14px;font-size:13px}
-.mono{font-family:'IBM Plex Mono',monospace}
-.dim{color:var(--t2)}
-.blue{color:var(--ac)}
-.green{color:var(--g)}
-.red{color:var(--r)}
-.bold{font-weight:600}
+tbody td{padding:9px 12px;font-size:13px;white-space:nowrap}
 
 /* BADGE */
 .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
@@ -114,16 +116,17 @@ tbody td{padding:10px 14px;font-size:13px}
 .btn.sm{padding:5px 10px;font-size:12px}
 
 /* FILTER */
-.fbar{background:var(--s1);border:1px solid var(--b2);border-radius:10px;padding:16px;margin-bottom:16px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
-.fg{display:flex;flex-direction:column;gap:4px;flex:1;min-width:120px}
+.fbar{background:var(--s1);border:1px solid var(--b2);border-radius:10px;padding:14px;margin-bottom:14px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.fg{display:flex;flex-direction:column;gap:4px;flex:1;min-width:110px}
+.flbl{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:0.8px}
 
 /* GRID */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.gs{display:grid;grid-template-columns:1fr 320px;gap:16px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.gs{display:grid;grid-template-columns:1fr 300px;gap:14px}
 
 /* TABS */
-.tabs{display:flex;border-bottom:1px solid var(--b2);margin-bottom:18px}
-.tab{padding:9px 16px;font-size:13px;font-weight:600;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.tabs{display:flex;border-bottom:1px solid var(--b2);margin-bottom:16px}
+.tab{padding:8px 14px;font-size:13px;font-weight:600;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
 .tab:hover{color:var(--t)}
 .tab.on{color:var(--ac);border-bottom-color:var(--ac)}
 .tc{display:none}
@@ -139,20 +142,15 @@ tbody td{padding:10px 14px;font-size:13px}
 
 /* TERMINAL */
 .tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
-.tcard{background:var(--s1);border:1px solid var(--b2);border-radius:10px;padding:18px;transition:all .2s}
-.tcard:hover{border-color:var(--b1)}
+.tcard{background:var(--s1);border:1px solid var(--b2);border-radius:10px;padding:16px;transition:border .2s}
 .tcard.act{border-color:rgba(16,185,129,0.2)}
-.dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0}
 .dot.g{background:var(--g)}
 .dot.r{background:var(--r)}
-.tcc{font-family:'IBM Plex Mono',monospace;font-size:16px;color:var(--ac);margin:12px 0;letter-spacing:1px}
+.tcc{font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--ac);margin:10px 0;letter-spacing:1px}
 
 /* WALLET */
-.wbox{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:18px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
-.waddr{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ac)}
-.rbox{text-align:right}
-.rv{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:700;color:var(--ac)}
-.rl{font-size:11px;color:var(--t3)}
+.wbox{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:16px 18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:14px}
 
 /* MODAL */
 .mov{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(4px)}
@@ -160,7 +158,7 @@ tbody td{padding:10px 14px;font-size:13px}
 .modal{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:24px;width:520px;max-width:92vw;max-height:88vh;overflow-y:auto}
 .modal::-webkit-scrollbar{width:4px}
 .modal::-webkit-scrollbar-thumb{background:var(--s3);border-radius:2px}
-.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .mt{font-size:16px;font-weight:700}
 
 /* TOAST */
@@ -168,33 +166,29 @@ tbody td{padding:10px 14px;font-size:13px}
 .toast.on{display:block}
 
 /* SEP */
-.sep{height:1px;background:var(--b2);margin:16px 0}
+.sep{height:1px;background:var(--b2);margin:14px 0}
+
+/* STEPS */
+.stepi{display:flex;gap:10px;margin-bottom:10px}
+.stepn{width:20px;height:20px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.stept{font-size:13px;color:var(--t2);line-height:1.5;padding-top:1px}
+
+/* REFERRAL */
+.rcard{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:20px;margin-bottom:14px}
+
+/* DISPUTE */
+.dcard{background:var(--s1);border:1px solid var(--b2);border-radius:10px;padding:13px 15px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:border .15s}
+.dcard:hover{border-color:var(--b1)}
+
+/* AVATAR */
+.avatar{width:60px;height:60px;border-radius:12px;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;margin:0 auto 10px}
 
 /* PROGRESS */
 .pw{background:var(--s3);border-radius:10px;height:4px;overflow:hidden}
 .pb{height:100%;background:var(--ac);border-radius:10px}
 
-/* STEPS */
-.stepi{display:flex;gap:12px;margin-bottom:12px}
-.stepn{width:22px;height:22px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
-.stept{font-size:13px;color:var(--t2);line-height:1.5;padding-top:2px}
-
-/* REFERRAL */
-.rcard{background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:22px;margin-bottom:16px}
-.rstats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
-.rstat{background:var(--s1);border:1px solid var(--b2);border-radius:10px;padding:18px;text-align:center}
-.rstatv{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:700;color:var(--ac)}
-.rstatl{font-size:12px;color:var(--t2);margin-top:4px}
-
-/* DISPUTE */
-.dcard{background:var(--s1);border:1px solid var(--b2);border-radius:10px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;transition:border .15s}
-.dcard:hover{border-color:var(--b1)}
-
-/* AVATAR */
-.avatar{width:64px;height:64px;border-radius:14px;background:var(--ac);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;margin:0 auto 12px}
-
-@media(max-width:900px){.stats.c6{grid-template-columns:repeat(3,1fr)}.gs{grid-template-columns:1fr}.main{padding:16px}}
-@media(max-width:600px){.stats.c3,.stats.c4,.stats.c6{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
+@media(max-width:900px){.sgrid.c6{grid-template-columns:repeat(3,1fr)}.gs{grid-template-columns:1fr}.main{padding:14px}}
+@media(max-width:600px){.sgrid.c3,.sgrid.c4,.sgrid.c6{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -220,28 +214,28 @@ tbody td{padding:10px 14px;font-size:13px}
       <div class="tab" onclick="eTab(3,this)">Додатково</div>
     </div>
     <div class="tc on" id="et0">
-      <label class="lbl">Номер картки</label><input class="inp" id="ec" placeholder="0000 0000 0000 0000" maxlength="19" oninput="fc(this)">
-      <label class="lbl">Номер телефону</label><input class="inp" id="ep" placeholder="+380 00 000 0000">
-      <label class="lbl">Номер рахунку</label><input class="inp" id="ea" placeholder="UA000000000000">
+      <label class="lbl">Номер картки</label><input class="inp" id="ec" placeholder="0000 0000 0000 0000" maxlength="19" oninput="fc(this)" style="margin-bottom:10px">
+      <label class="lbl">Номер телефону</label><input class="inp" id="ep" placeholder="+380 00 000 0000" style="margin-bottom:10px">
+      <label class="lbl">Номер рахунку</label><input class="inp" id="ea" placeholder="UA000000000000" style="margin-bottom:10px">
       <label class="lbl">Банк</label>
-      <select class="inp" id="eb"><option value="">—</option><option>ПриватБанк</option><option>Monobank</option><option>ПУМБ</option><option>Ощадбанк</option></select>
+      <select class="inp" id="eb" style="margin-bottom:10px"><option value="">—</option><option>ПриватБанк</option><option>Monobank</option><option>ПУМБ</option><option>Ощадбанк</option><option>Укрсиббанк</option><option>Райффайзен Банк</option><option>А-Банк</option><option>Сенс Банк</option><option>ТАСКОМБАНК</option><option>Кредобанк</option><option>Банк Південний</option><option>Укргазбанк</option><option>ОТП Банк</option><option>Правекс Банк</option></select>
       <div class="g2">
-        <div><label class="lbl">Ім'я отримувача</label><input class="inp" id="en" placeholder="Іван І."></div>
-        <div><label class="lbl">Назва терміналу</label><input class="inp" id="ett" placeholder="Термінал"></div>
+        <div><label class="lbl">Ім'я отримувача</label><input class="inp" id="en" placeholder="Іван І." style="margin-top:4px"></div>
+        <div><label class="lbl">Назва терміналу</label><input class="inp" id="ett" placeholder="Термінал" style="margin-top:4px"></div>
       </div>
     </div>
     <div class="tc" id="et1">
-      <label class="lbl">Мін сума платежу</label><input class="inp" id="emin" type="number" placeholder="100">
-      <label class="lbl">Макс сума платежу</label><input class="inp" id="emax" type="number" placeholder="50000">
-      <label class="lbl">Макс оборот на добу</label><input class="inp" id="edl" type="number" placeholder="500000">
-      <label class="lbl">Макс операцій на добу</label><input class="inp" id="edo" type="number" placeholder="100">
-      <label class="lbl">Макс операцій всього</label><input class="inp" id="eto2" type="number" placeholder="10000">
-      <label class="lbl">Макс оборот по реквізиту</label><input class="inp" id="emx" type="number" placeholder="1000000">
+      <label class="lbl">Мін сума платежу (₴)</label><input class="inp" id="emin" type="number" placeholder="100" style="margin-bottom:10px">
+      <label class="lbl">Макс сума платежу (₴)</label><input class="inp" id="emax" type="number" placeholder="50000" style="margin-bottom:10px">
+      <label class="lbl">Макс оборот на добу (₴)</label><input class="inp" id="edl" type="number" placeholder="500000" style="margin-bottom:10px">
+      <label class="lbl">Макс к-ть операцій на добу</label><input class="inp" id="edo" type="number" placeholder="100" style="margin-bottom:10px">
+      <label class="lbl">Макс к-ть операцій за весь час</label><input class="inp" id="eto2" type="number" placeholder="10000" style="margin-bottom:10px">
+      <label class="lbl">Макс оборот по реквізиту (₴)</label><input class="inp" id="emx" type="number" placeholder="1000000">
     </div>
     <div class="tc" id="et2">
-      <label class="lbl">Мін інтервал між ордерами (хв)</label><input class="inp" id="eim" type="number" placeholder="0">
-      <label class="lbl">Мін інтервал між ордерами (сек)</label><input class="inp" id="eis" type="number" placeholder="0">
-      <p style="font-size:12px;color:var(--t3);margin-top:8px">Інтервали знижують ризик блокування картки банком.</p>
+      <label class="lbl">Мін інтервал між ордерами (хв)</label><input class="inp" id="eim" type="number" placeholder="0" style="margin-bottom:10px">
+      <label class="lbl">Мін інтервал між ордерами (сек)</label><input class="inp" id="eis" type="number" placeholder="0" style="margin-bottom:10px">
+      <p style="font-size:12px;color:var(--t3)">Інтервали знижують ризик блокування картки банком.</p>
     </div>
     <div class="tc" id="et3">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--s2);border-radius:8px;margin-bottom:10px">
@@ -252,7 +246,8 @@ tbody td{padding:10px 14px;font-size:13px}
         <span style="font-size:13px">Прив'язки до контрагентів</span>
         <label class="tgl"><input type="checkbox"><span class="tsl"></span></label>
       </div>
-      <label class="lbl">Коментар</label><textarea class="inp" id="enote" rows="3" placeholder="Нотатка..." style="resize:vertical"></textarea>
+      <label class="lbl">Коментар</label>
+      <textarea class="inp" id="enote" rows="3" placeholder="Нотатка..." style="margin-top:4px"></textarea>
     </div>
     <div style="display:flex;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--b2)">
       <button class="btn p" style="flex:1" onclick="saveTerm()">Зберегти</button>
@@ -264,12 +259,12 @@ tbody td{padding:10px 14px;font-size:13px}
 <!-- LOGIN -->
 <div id="login">
   <div class="lcard">
-    <h1>P2P UAH</h1>
-    <p>Вхід до кабінету трейдера</p>
+    <h1>FlowPay</h1>
+    <p class="lsub">Кабінет трейдера P2P платформи</p>
     <label class="lbl">Логін</label>
-    <input class="inp" id="li" placeholder="Логін" autocomplete="off">
+    <input class="inp" id="li" placeholder="Введіть логін" autocomplete="off" style="margin-bottom:0">
     <label class="lbl">Пароль</label>
-    <input class="inp" id="pi" type="password" placeholder="Пароль">
+    <input class="inp" id="pi" type="password" placeholder="Введіть пароль" style="margin-bottom:0">
     <button class="lbtn" onclick="doLogin()">Увійти</button>
     <div class="lerr" id="lerr">Невірний логін або пароль</div>
     <div class="lhint">Демо: <b>trader</b> / <b>1234</b></div>
@@ -279,7 +274,7 @@ tbody td{padding:10px 14px;font-size:13px}
 <!-- APP -->
 <div id="app" style="display:none;flex-direction:column;height:100vh">
   <nav>
-    <div class="logo">P2P UAH</div>
+    <div class="logo">FlowPay</div>
     <div class="navl">
       <button class="nb on" onclick="sp('dash',this)">Зведення</button>
       <button class="nb" onclick="sp('ord',this)">Ордери</button>
@@ -292,7 +287,7 @@ tbody td{padding:10px 14px;font-size:13px}
       <button class="nb" onclick="sp('prof',this)">Профіль</button>
     </div>
     <div class="navr">
-      <div class="nbal">Баланс: <span id="navbal">135 723.11</span></div>
+      <div class="nbal">Баланс: <span id="navbal">135 723.11 ₴</span></div>
       <button class="nuser" onclick="doLogout()" id="navuser">trader →</button>
     </div>
   </nav>
@@ -302,55 +297,85 @@ tbody td{padding:10px 14px;font-size:13px}
     <!-- DASHBOARD -->
     <div class="pg on" id="pg-dash">
       <div class="pgt">Загальна зведення</div>
-      <div class="stats c3">
-        <div class="st hi"><div class="stl">Виконано / усього</div><div class="stv blue">136 / 230</div></div>
-        <div class="st"><div class="stl">Конверсія</div><div class="stv">59.13 %</div></div>
-        <div class="st"><div class="stl">Оборот</div><div class="stv">201 314.00</div></div>
-        <div class="st hi"><div class="stl">Дохід</div><div class="stv blue">10 081.75</div></div>
-        <div class="st"><div class="stl">Внесений депозит</div><div class="stv">326 886.36</div></div>
-        <div class="st"><div class="stl">Доступно для роботи</div><div class="stv green">135 723.11</div></div>
+      <div class="sgrid c3">
+        <div class="st hi"><div class="stl">Виконано / усього</div><div class="stv blue" id="d-conv">136 / 230</div></div>
+        <div class="st"><div class="stl">Конверсія</div><div class="stv" id="d-convp">59.13 %</div></div>
+        <div class="st"><div class="stl">Оборот</div><div class="stv mono" id="d-turn">201 314.00</div></div>
+        <div class="st hi"><div class="stl">Дохід</div><div class="stv blue mono" id="d-inc">10 081.75</div></div>
+        <div class="st"><div class="stl">Внесений депозит</div><div class="stv mono" id="d-dep">81 121.21</div></div>
+        <div class="st"><div class="stl">Доступно для роботи</div><div class="stv green mono" id="d-avail">135 723.11</div></div>
       </div>
       <div class="card">
         <div class="ch">
           <div class="ct">Аналітика ефективності</div>
-          <div style="display:flex;gap:12px;font-size:12px;font-weight:500"><span class="blue">● Конверсія, %</span><span style="color:#6366f1">● Оборот</span></div>
+          <div style="display:flex;gap:12px;font-size:12px;font-weight:500">
+            <span class="blue">● Конверсія, %</span>
+            <span style="color:#6366f1">● Оборот</span>
+          </div>
         </div>
-        <div style="padding:16px"><canvas id="chart" height="100"></canvas></div>
+        <div style="padding:12px 16px"><canvas id="chart" height="70"></canvas></div>
       </div>
       <div class="card">
         <div class="ch"><div class="ct">Останні ордери</div><button class="btn o sm" onclick="sp('ord',null)">Всі ордери</button></div>
-        <table><thead><tr><th>ID</th><th>Створено</th><th>Термінал</th><th>Сума</th><th>Статус</th><th>Реквізит</th><th>Банк</th><th>Дохід</th><th>Дедлайн</th><th></th></tr></thead><tbody id="dtb"></tbody></table>
+        <table>
+          <thead><tr><th>ID</th><th>Створено</th><th>Термінал</th><th>Сума</th><th>Статус</th><th>Реквізит</th><th>Банк</th><th>Дохід</th><th>Дедлайн</th><th></th></tr></thead>
+          <tbody id="dtb"></tbody>
+        </table>
       </div>
     </div>
 
     <!-- ORDERS -->
     <div class="pg" id="pg-ord">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <div class="pgt" style="margin-bottom:0">Мої ордери</div>
-        <div style="display:flex;gap:6px"><button class="btn sg sm" onclick="toast('Excel завантажено')">Excel</button></div>
+      <div class="phrow">
+        <div class="pgt" style="margin:0">Ордери</div>
+        <button class="btn sg sm" onclick="exportExcel()">Excel</button>
       </div>
       <div class="fbar">
-        <div class="fg"><label class="lbl">ID</label><input class="inp" placeholder="ID" style="margin:0"></div>
-        <div class="fg"><label class="lbl">Статус</label><select class="inp" id="fst" style="margin:0" onchange="filterOrders()"><option value="">Все</option><option value="Виконано">Виконано</option><option value="Прострочено">Прострочено</option><option value="Скасовано">Скасовано</option></select></div>
-        <div class="fg"><label class="lbl">Термінал</label><select class="inp" id="ftr" style="margin:0" onchange="filterOrders()"><option value="">Все</option><option>Олег</option><option>Терм С.Д.</option></select></div>
-        <div class="fg"><label class="lbl">Сума</label><input class="inp" placeholder="Від" style="margin:0" type="number"></div>
+        <div class="fg">
+          <span class="flbl">Пошук по ID</span>
+          <input class="inp" id="fid" placeholder="Введіть ID ордеру" style="margin:0" oninput="filterOrders()">
+        </div>
+        <div class="fg">
+          <span class="flbl">Статус</span>
+          <select class="inp" id="fst" style="margin:0" onchange="filterOrders()">
+            <option value="">Всі</option>
+            <option>Виконано</option>
+            <option>Прострочено</option>
+            <option>Скасовано</option>
+          </select>
+        </div>
+        <div class="fg">
+          <span class="flbl">Термінал</span>
+          <select class="inp" id="ftr" style="margin:0" onchange="filterOrders()">
+            <option value="">Всі</option>
+            <option>Олег</option>
+            <option>Терм С.Д.</option>
+          </select>
+        </div>
+        <div class="fg">
+          <span class="flbl">Сума від</span>
+          <input class="inp" id="famt" type="number" placeholder="0" style="margin:0" oninput="filterOrders()">
+        </div>
         <div style="display:flex;gap:6px;align-items:flex-end">
-          <button class="btn p" onclick="filterOrders()">Пошук</button>
-          <button class="btn o" onclick="document.getElementById('fst').value='';document.getElementById('ftr').value='';filterOrders()">Скинути</button>
+          <button class="btn o sm" onclick="document.getElementById('fid').value='';document.getElementById('fst').value='';document.getElementById('ftr').value='';document.getElementById('famt').value='';filterOrders()">Скинути</button>
         </div>
       </div>
       <div class="card">
-        <table><thead><tr><th>ID</th><th>Створено</th><th>Термінал</th><th>Сума</th><th>Статус</th><th>Реквізит</th><th>Банк</th><th>Дохід</th><th>USDT</th><th>Дедлайн</th><th>Дії</th></tr></thead><tbody id="otb"></tbody></table>
+        <table>
+          <thead><tr><th>ID</th><th>Створено</th><th>Термінал</th><th>Сума</th><th>Статус</th><th>Реквізит</th><th>Банк</th><th>Дохід</th><th>USDT</th><th>Дедлайн</th><th>Дії</th></tr></thead>
+          <tbody id="otb"></tbody>
+        </table>
       </div>
+      <div id="oempty" style="text-align:center;padding:30px;color:var(--t2);display:none">Ордерів не знайдено</div>
     </div>
 
     <!-- TERMINALS -->
     <div class="pg" id="pg-term">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <div class="pgt" style="margin-bottom:0">Термінали</div>
-        <button class="btn p" onclick="sp('nt',null)">+ Додати термінал</button>
+      <div class="phrow">
+        <div class="pgt" style="margin:0">Термінали</div>
+        <button class="btn p sm" onclick="sp('nt',null)">+ Додати термінал</button>
       </div>
-      <div class="stats c4" style="margin-bottom:14px">
+      <div class="sgrid c4" style="margin-bottom:14px">
         <div class="st"><div class="stl">Всього</div><div class="stv" id="tcnt">2</div></div>
         <div class="st"><div class="stl">Активних</div><div class="stv green" id="tact">1</div></div>
         <div class="st"><div class="stl">Оборот сьогодні</div><div class="stv blue">0</div></div>
@@ -373,33 +398,60 @@ tbody td{padding:10px 14px;font-size:13px}
               <div class="tab" onclick="nTab(3,this)">Додатково</div>
             </div>
             <div class="tc on" id="nt0">
-              <label class="lbl">Номер картки</label><input class="inp" id="nc" placeholder="0000 0000 0000 0000" maxlength="19" oninput="fc(this)">
-              <label class="lbl">Номер телефону</label><input class="inp" id="np" placeholder="+380 00 000 0000">
-              <label class="lbl">Номер рахунку</label><input class="inp" id="na" placeholder="UA000000000000">
+              <label class="lbl">Номер картки</label><input class="inp" id="nc" placeholder="0000 0000 0000 0000" maxlength="19" oninput="fc(this)" style="margin-bottom:10px">
+              <label class="lbl">Номер телефону</label><input class="inp" id="np" placeholder="+380 00 000 0000" style="margin-bottom:10px">
+              <label class="lbl">Номер рахунку</label><input class="inp" id="na" placeholder="UA000000000000" style="margin-bottom:10px">
               <label class="lbl">Банк</label>
-              <select class="inp" id="nb2"><option value="">—</option><option>ПриватБанк</option><option>Monobank</option><option>ПУМБ</option><option>Ощадбанк</option></select>
-              <div class="g2"><div><label class="lbl">Ім'я отримувача</label><input class="inp" id="nn" placeholder="Іван І."></div><div><label class="lbl">Назва терміналу</label><input class="inp" id="ntt" placeholder="Термінал"></div></div>
-              <p style="font-size:12px;color:var(--t3);margin-top:4px">Потрібні: назва терміналу, банк, ім'я отримувача і один реквізит.</p>
+              <select class="inp" id="nb2" style="margin-bottom:10px">
+                <option value="">— Оберіть банк —</option>
+                <option>ПриватБанк</option>
+                <option>Monobank</option>
+                <option>ПУМБ</option>
+                <option>Ощадбанк</option>
+                <option>Укрсиббанк</option>
+                <option>Райффайзен Банк</option>
+                <option>А-Банк</option>
+                <option>Сенс Банк</option>
+                <option>ТАСКОМБАНК</option>
+                <option>Кредобанк</option>
+                <option>Банк Південний</option>
+                <option>Укргазбанк</option>
+                <option>ОТП Банк</option>
+                <option>Правекс Банк</option>
+                <option>Глобус Банк</option>
+                <option>Мегабанк</option>
+              </select>
+              <div class="g2">
+                <div><label class="lbl">Ім'я отримувача</label><input class="inp" id="nn" placeholder="Іван І." style="margin-top:4px"></div>
+                <div><label class="lbl">Назва терміналу</label><input class="inp" id="ntt" placeholder="Термінал" style="margin-top:4px"></div>
+              </div>
+              <p style="font-size:12px;color:var(--t3);margin-top:10px">Потрібні: назва, банк, ім'я та один реквізит (картка або телефон).</p>
             </div>
             <div class="tc" id="nt1">
-              <label class="lbl">Мін сума платежу</label><input class="inp" type="number" placeholder="100">
-              <label class="lbl">Макс сума платежу</label><input class="inp" type="number" placeholder="50000">
-              <label class="lbl">Макс оборот на добу</label><input class="inp" type="number" placeholder="500000">
-              <label class="lbl">Макс к-ть операцій на добу</label><input class="inp" type="number" placeholder="100">
-              <label class="lbl">Макс к-ть операцій за весь час</label><input class="inp" type="number" placeholder="10000">
-              <label class="lbl">Макс оборот по реквізиту</label><input class="inp" type="number" placeholder="1000000">
+              <label class="lbl">Мін сума платежу (₴)</label><input class="inp" type="number" placeholder="100" style="margin-bottom:10px">
+              <label class="lbl">Макс сума платежу (₴)</label><input class="inp" type="number" placeholder="50000" style="margin-bottom:10px">
+              <label class="lbl">Макс оборот на добу (₴)</label><input class="inp" type="number" placeholder="500000" style="margin-bottom:10px">
+              <label class="lbl">Макс к-ть операцій на добу</label><input class="inp" type="number" placeholder="100" style="margin-bottom:10px">
+              <label class="lbl">Макс к-ть операцій за весь час</label><input class="inp" type="number" placeholder="10000" style="margin-bottom:10px">
+              <label class="lbl">Для роботи з прив'язками</label><input class="inp" placeholder="—" style="margin-bottom:10px">
+              <label class="lbl">Макс оборот по реквізиту (₴)</label><input class="inp" type="number" placeholder="1000000">
             </div>
             <div class="tc" id="nt2">
-              <label class="lbl">Мін інтервал між ордерами (хв)</label><input class="inp" type="number" placeholder="0">
-              <label class="lbl">Мін інтервал між ордерами (сек)</label><input class="inp" type="number" placeholder="0">
+              <label class="lbl">Мін інтервал між ордерами (хв)</label><input class="inp" type="number" placeholder="0" style="margin-bottom:10px">
+              <label class="lbl">Мін інтервал між ордерами (сек)</label><input class="inp" type="number" placeholder="0" style="margin-bottom:10px">
+              <p style="font-size:12px;color:var(--t3)">Інтервали знижують ризик блокування картки банком.</p>
             </div>
             <div class="tc" id="nt3">
               <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--s2);border-radius:8px;margin-bottom:10px">
                 <span style="font-size:13px">Автопідтвердження</span>
                 <label class="tgl"><input type="checkbox" checked><span class="tsl"></span></label>
               </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--s2);border-radius:8px">
+                <span style="font-size:13px">Прив'язки до контрагентів</span>
+                <label class="tgl"><input type="checkbox"><span class="tsl"></span></label>
+              </div>
             </div>
-            <button class="btn p" style="width:100%;padding:12px;margin-top:12px" onclick="addTerm()">Додати</button>
+            <button class="btn p" style="width:100%;padding:11px;margin-top:14px" onclick="addTerm()">Додати термінал</button>
           </div>
         </div>
         <div>
@@ -409,9 +461,9 @@ tbody td{padding:10px 14px;font-size:13px}
               <div class="stepi"><div class="stepn">1</div><div class="stept">Виконайте тестове замовлення для перевірки автоматики.</div></div>
               <div class="stepi"><div class="stepn">2</div><div class="stept">Переконайтесь що реквізит введено вірно.</div></div>
               <div class="stepi"><div class="stepn">3</div><div class="stept">Надішліть платіж на отриманий реквізит.</div></div>
-              <div class="stepi"><div class="stepn">4</div><div class="stept">Система перехопить push-сповіщення через ProGrabber.</div></div>
+              <div class="stepi"><div class="stepn">4</div><div class="stept">Система перехопить push через ProGrabber.</div></div>
               <div class="stepi"><div class="stepn">5</div><div class="stept">Тестове замовлення буде позначено як виконане.</div></div>
-              <div class="stepi"><div class="stepn">6</div><div class="stept">Активуйте реквізит і починайте працювати.</div></div>
+              <div class="stepi"><div class="stepn">6</div><div class="stept">Активуйте реквізит і починайте приймати ордери.</div></div>
             </div>
           </div>
         </div>
@@ -421,27 +473,18 @@ tbody td{padding:10px 14px;font-size:13px}
     <!-- PAYOUTS -->
     <div class="pg" id="pg-pay">
       <div class="pgt">Виплати</div>
-      <div class="stats c4" style="margin-bottom:14px">
-        <div class="st hi"><div class="stl">Доступно</div><div class="stv blue">135 723.11</div></div>
-        <div class="st"><div class="stl">Виплачено</div><div class="stv">48 200.00</div></div>
-        <div class="st"><div class="stl">В обробці</div><div class="stv">0.00</div></div>
-        <div class="st"><div class="stl">Комісій сплачено</div><div class="stv red">1 560.00</div></div>
-      </div>
-      <div class="card" style="margin-bottom:14px">
-        <div class="ch"><div class="ct">Нова виплата</div></div>
-        <div class="cb">
-          <div class="g2">
-            <div><label class="lbl">Номер картки</label><input class="inp" placeholder="0000 0000 0000 0000" style="margin:0" id="pyc"></div>
-            <div><label class="lbl">Сума (₴)</label><input class="inp" type="number" placeholder="1000" style="margin:0" id="pya"></div>
-            <div><label class="lbl">Тип</label><select class="inp" style="margin:0"><option>Банківська карта</option><option>СБП</option></select></div>
-            <div><label class="lbl">Order ID</label><input class="inp" placeholder="payout-001" style="margin:0" id="pyid"></div>
-          </div>
-          <button class="btn p" style="margin-top:14px" onclick="addPayout()">Створити виплату</button>
-        </div>
+      <div class="sgrid c4" style="margin-bottom:14px">
+        <div class="st hi"><div class="stl">Виплачено всього</div><div class="stv mono" id="p-total">48 200.00 ₴</div></div>
+        <div class="st"><div class="stl">Успішних виплат</div><div class="stv green" id="p-succ">2</div></div>
+        <div class="st"><div class="stl">Невдалих виплат</div><div class="stv red" id="p-fail">1</div></div>
+        <div class="st"><div class="stl">Комісій сплачено</div><div class="stv red mono" id="p-comm">86.00 ₴</div></div>
       </div>
       <div class="card">
         <div class="ch"><div class="ct">Мої виплати</div></div>
-        <table><thead><tr><th>ID</th><th>Order ID</th><th>Тип</th><th>Сума</th><th>Комісія</th><th>Статус</th><th>Реквізит</th><th>Банк</th><th>Дата</th></tr></thead><tbody id="ptb"></tbody></table>
+        <table>
+          <thead><tr><th>ID</th><th>Order ID</th><th>Тип</th><th>Сума</th><th>Комісія</th><th>Статус</th><th>Реквізит</th><th>Банк</th><th>Дата</th></tr></thead>
+          <tbody id="ptb"></tbody>
+        </table>
       </div>
     </div>
 
@@ -449,35 +492,41 @@ tbody td{padding:10px 14px;font-size:13px}
     <div class="pg" id="pg-dep">
       <div class="pgt">Депозити</div>
       <div class="wbox">
-        <div><div style="font-size:11px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Ваш гаманець USDT (TRC-20)</div><div class="waddr" id="wa">TZAQeyADF3JhYWhJzxmBcjxmZonCzyREdF</div></div>
+        <div>
+          <div style="font-size:11px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Ваш гаманець USDT (TRC-20)</div>
+          <div class="mono blue" id="wa" style="font-size:13px">TZAQeyADF3JhYWhJzxmBcjxmZonCzyREdF</div>
+        </div>
         <div style="display:flex;gap:10px;align-items:center">
           <button class="btn o sm" onclick="navigator.clipboard.writeText(document.getElementById('wa').textContent);toast('Адресу скопійовано')">Копіювати</button>
-          <div class="rbox"><div class="rv">44.79</div><div class="rl">USDT / UAH</div></div>
+          <div style="text-align:right">
+            <div class="mono blue" style="font-size:22px;font-weight:700">44.79</div>
+            <div style="font-size:11px;color:var(--t3)">USDT / UAH</div>
+          </div>
         </div>
       </div>
-      <div class="stats c4" style="margin-bottom:14px">
-        <div class="st hi"><div class="stl">Внесено USDT</div><div class="stv blue">1 808.50</div></div>
-        <div class="st"><div class="stl">В гривнях</div><div class="stv">81 121.21</div></div>
-        <div class="st"><div class="stl">Середній курс</div><div class="stv">44.83</div></div>
-        <div class="st"><div class="stl">Депозитів</div><div class="stv">3</div></div>
+      <div class="sgrid c4" style="margin-bottom:14px">
+        <div class="st hi"><div class="stl">Внесено USDT</div><div class="stv blue mono" id="dep-usdt">1 808.50</div></div>
+        <div class="st"><div class="stl">В гривнях (UAH)</div><div class="stv mono" id="dep-uah">81 121.21</div></div>
+        <div class="st"><div class="stl">Середній курс</div><div class="stv mono" id="dep-rate">44.83</div></div>
+        <div class="st"><div class="stl">Кількість депозитів</div><div class="stv" id="dep-cnt">3</div></div>
       </div>
       <div class="card">
         <div class="ch"><div class="ct">Мої депозити</div></div>
-        <table><thead><tr><th>Дата/час</th><th>Хеш</th><th>Сума USDT</th><th>Сума</th><th>Курс</th><th>Опис</th><th>Тип</th></tr></thead><tbody id="dptb"></tbody></table>
+        <table>
+          <thead><tr><th>Дата/час</th><th>Хеш транзакції</th><th>Сума USDT</th><th>Сума UAH</th><th>Курс</th><th>Опис</th><th>Тип</th></tr></thead>
+          <tbody id="dptb"></tbody>
+        </table>
       </div>
     </div>
 
     <!-- DISPUTES -->
     <div class="pg" id="pg-disp">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <div class="pgt" style="margin-bottom:0">Диспути</div>
-        <button class="btn p sm" onclick="toast('Функція буде доступна найближчим часом')">+ Відкрити диспут</button>
-      </div>
-      <div class="stats c4" style="margin-bottom:14px">
-        <div class="st"><div class="stl">Всього</div><div class="stv">3</div></div>
-        <div class="st hi"><div class="stl">Відкритих</div><div class="stv blue">1</div></div>
-        <div class="st"><div class="stl">Виграно</div><div class="stv green">1</div></div>
-        <div class="st"><div class="stl">Програно</div><div class="stv red">1</div></div>
+      <div class="pgt">Диспути</div>
+      <div class="sgrid c4" style="margin-bottom:14px">
+        <div class="st"><div class="stl">Всього диспутів</div><div class="stv" id="ds-total">3</div></div>
+        <div class="st hi"><div class="stl">Відкритих</div><div class="stv blue" id="ds-open">1</div></div>
+        <div class="st"><div class="stl">Виграно</div><div class="stv green" id="ds-win">1</div></div>
+        <div class="st"><div class="stl">Програно</div><div class="stv red" id="ds-lose">1</div></div>
       </div>
       <div id="dlist"></div>
     </div>
@@ -487,33 +536,53 @@ tbody td{padding:10px 14px;font-size:13px}
       <div class="pgt">Реферальна програма</div>
       <div class="rcard">
         <div style="font-size:11px;font-weight:600;color:var(--ac);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Ваша винагорода</div>
-        <div style="font-size:28px;font-weight:700">10% від доходу рефералів</div>
-        <div style="font-size:13px;color:var(--t2);margin-top:4px">Пожиттєво, без обмежень</div>
-        <div style="background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:14px">
-          <span class="mono" style="color:var(--ac);font-size:13px" id="rl">https://p2puah.io/ref/trader_abc123</span>
+        <div style="font-size:26px;font-weight:700">10% від доходу рефералів</div>
+        <div style="font-size:13px;color:var(--t2);margin-top:4px">Пожиттєво, без обмежень суми</div>
+        <div style="background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+          <span class="mono blue" style="font-size:13px" id="rl">https://flowpay.io/r/trd_a8k2x9</span>
           <button class="btn p sm" onclick="navigator.clipboard.writeText(document.getElementById('rl').textContent);toast('Посилання скопійовано')">Копіювати</button>
         </div>
       </div>
-      <div class="rstats">
-        <div class="rstat"><div class="rstatv">75</div><div class="rstatl">Рефералів підключено</div></div>
-        <div class="rstat"><div class="rstatv" style="color:var(--g)">2 060 776</div><div class="rstatl">Дохід по ордерам</div></div>
-        <div class="rstat"><div class="rstatv">805 558</div><div class="rstatl">К виплаті</div></div>
+      <div class="sgrid c4" style="margin-bottom:14px">
+        <div class="st"><div class="stl">Рефералів підключено</div><div class="stv blue" id="r-cnt">3</div></div>
+        <div class="st"><div class="stl">Оборот рефералів</div><div class="stv mono" id="r-turn">120 286 698</div></div>
+        <div class="st hi"><div class="stl">Загальний дохід</div><div class="stv blue mono" id="r-inc">2 706 666.71</div></div>
+        <div class="st"><div class="stl">К виплаті</div><div class="stv mono" id="r-pay">805 558.52</div></div>
       </div>
-      <div class="card">
-        <div class="ch">
-          <div class="ct">Мої реферали</div>
-          <div class="tabs" style="margin:0;border:none">
-            <div class="tab on" style="padding:4px 10px;font-size:12px">Сводка і реферали</div>
-            <div class="tab" style="padding:4px 10px;font-size:12px">Доходи по ордерам</div>
-            <div class="tab" style="padding:4px 10px;font-size:12px">Доходи по виплатам</div>
-          </div>
+      <div class="tabs" style="border-bottom:1px solid var(--b2);margin-bottom:14px" id="rtabs">
+        <div class="tab on" onclick="rTab(0,this)">Зведення і реферали</div>
+        <div class="tab" onclick="rTab(1,this)">Доходи по ордерам</div>
+        <div class="tab" onclick="rTab(2,this)">Доходи по виплатам</div>
+        <div class="tab" onclick="rTab(3,this)">Виплати винагороди</div>
+      </div>
+      <div class="tc on" id="rt0">
+        <div class="card" style="margin:0">
+          <table>
+            <thead><tr><th>#</th><th>Трейдер</th><th>Ордера %</th><th>Виплати %</th><th>Вип. оборот</th><th>Конверсія</th><th>Ордера</th><th>Баланс</th></tr></thead>
+            <tbody id="rtb"></tbody>
+          </table>
         </div>
-        <table><thead><tr><th>#</th><th>Трейдер</th><th>Ордера %</th><th>Виплати %</th><th>Вип. оборот</th><th>Конверсія</th><th>Ордера</th><th>Баланс</th></tr></thead>
-        <tbody>
-          <tr><td class="bold">1</td><td class="bold">7204_Gosha</td><td class="mono">0.40%</td><td class="mono">0.20%</td><td class="mono">77 159 347</td><td class="green bold">69.85%</td><td class="mono dim">119616 / 17...</td><td class="mono">0.58</td></tr>
-          <tr><td class="bold">2</td><td class="bold">7131_BursheUA</td><td class="mono">0.60%</td><td class="mono">0.40%</td><td class="mono">27 559 876</td><td class="green bold">70.19%</td><td class="mono dim">17788 / 253...</td><td class="mono">4 284.26</td></tr>
-          <tr><td class="bold">3</td><td class="bold">7225_sososisAA</td><td class="mono">0.70%</td><td class="mono">0.40%</td><td class="mono">25 566 475</td><td class="green bold">65.21%</td><td class="mono dim">29248 / 448...</td><td class="mono">10 185.61</td></tr>
-        </tbody></table>
+      </div>
+      <div class="tc" id="rt1">
+        <div class="card" style="margin:0">
+          <table>
+            <thead><tr><th>Трейдер</th><th>Виконано ордерів</th><th>Оборот</th><th>Ваш дохід (0.4%)</th></tr></thead>
+            <tbody id="rt1b"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="tc" id="rt2">
+        <div class="card" style="margin:0">
+          <table>
+            <thead><tr><th>Трейдер</th><th>Виплат</th><th>Оборот виплат</th><th>Ваш дохід (0.2%)</th></tr></thead>
+            <tbody id="rt2b"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="tc" id="rt3">
+        <div class="card" style="margin:0">
+          <div style="text-align:center;padding:30px;color:var(--t2)">Виплат винагороди ще не було</div>
+        </div>
       </div>
     </div>
 
@@ -522,25 +591,25 @@ tbody td{padding:10px 14px;font-size:13px}
       <div class="pgt">Профіль</div>
       <div class="gs">
         <div>
-          <div class="card" style="margin-bottom:14px">
+          <div class="card">
             <div class="ch"><div class="ct">Особисті дані</div></div>
             <div class="cb">
               <div class="g2">
-                <div><label class="lbl">Логін</label><input class="inp" value="trader" style="margin:0"></div>
-                <div><label class="lbl">Email</label><input class="inp" placeholder="email@example.com" style="margin:0"></div>
-                <div><label class="lbl">Telegram</label><input class="inp" placeholder="@username" style="margin:0"></div>
-                <div><label class="lbl">Часовий пояс</label><select class="inp" style="margin:0"><option>UTC+2 (Київ)</option></select></div>
+                <div><label class="lbl">Логін</label><input class="inp" value="trader" style="margin-top:4px"></div>
+                <div><label class="lbl">Email</label><input class="inp" placeholder="email@example.com" style="margin-top:4px"></div>
+                <div><label class="lbl">Telegram</label><input class="inp" placeholder="@username" style="margin-top:4px"></div>
+                <div><label class="lbl">Часовий пояс</label><select class="inp" style="margin-top:4px"><option>UTC+2 (Київ)</option><option>UTC+3</option><option>UTC+0</option></select></div>
               </div>
-              <button class="btn p" style="margin-top:12px" onclick="toast('Дані збережено')">Зберегти</button>
+              <button class="btn p" style="margin-top:14px" onclick="toast('Дані збережено')">Зберегти</button>
             </div>
           </div>
           <div class="card">
             <div class="ch"><div class="ct">Зміна пароля</div></div>
             <div class="cb">
-              <label class="lbl">Поточний пароль</label><input class="inp" type="password" placeholder="••••••••">
-              <label class="lbl">Новий пароль</label><input class="inp" type="password" placeholder="••••••••">
-              <label class="lbl">Підтвердити</label><input class="inp" type="password" placeholder="••••••••">
-              <button class="btn p" onclick="toast('Пароль змінено')">Змінити</button>
+              <label class="lbl">Поточний пароль</label><input class="inp" type="password" placeholder="••••••••" style="margin-bottom:10px">
+              <label class="lbl">Новий пароль</label><input class="inp" type="password" placeholder="••••••••" style="margin-bottom:10px">
+              <label class="lbl">Підтвердити</label><input class="inp" type="password" placeholder="••••••••" style="margin-bottom:12px">
+              <button class="btn p" onclick="toast('Пароль змінено')">Змінити пароль</button>
             </div>
           </div>
         </div>
@@ -548,8 +617,8 @@ tbody td{padding:10px 14px;font-size:13px}
           <div class="card" style="margin-bottom:14px">
             <div class="cb" style="text-align:center">
               <div class="avatar">T</div>
-              <div style="font-size:18px;font-weight:700">trader</div>
-              <div style="font-size:13px;color:var(--t2);margin-top:2px">Трейдер</div>
+              <div style="font-size:17px;font-weight:700">trader</div>
+              <div class="dim" style="font-size:13px;margin-top:2px">Трейдер</div>
               <div class="sep"></div>
               <div style="text-align:left;display:flex;flex-direction:column;gap:10px">
                 <div style="display:flex;justify-content:space-between"><span class="dim" style="font-size:13px">Реєстрація</span><span class="bold">01.07.2025</span></div>
@@ -558,7 +627,7 @@ tbody td{padding:10px 14px;font-size:13px}
               </div>
             </div>
           </div>
-          <div class="card">
+          <div class="card" style="margin-bottom:14px">
             <div class="ch"><div class="ct">Сповіщення</div></div>
             <div class="cb" style="display:flex;flex-direction:column;gap:12px">
               <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px">Нові ордери</span><label class="tgl"><input type="checkbox" checked><span class="tsl"></span></label></div>
@@ -567,7 +636,7 @@ tbody td{padding:10px 14px;font-size:13px}
               <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px">Депозити</span><label class="tgl"><input type="checkbox"><span class="tsl"></span></label></div>
             </div>
           </div>
-          <button class="btn dg" style="width:100%;padding:12px;margin-top:14px" onclick="doLogout()">Вийти з акаунту</button>
+          <button class="btn dg" style="width:100%;padding:11px" onclick="doLogout()">Вийти з акаунту</button>
         </div>
       </div>
     </div>
@@ -579,107 +648,259 @@ tbody td{padding:10px 14px;font-size:13px}
 const U={trader:'1234',admin:'admin123'};
 let eidx=-1;
 
+// ORDERS
 const O=[
-  {id:775053,d:'28.03.2026 11:17',t:'Олег',a:564,s:'Прострочено',c:'5457082542917054',cf:'5457 0825 4291 7054',b:'Приват Банк',i:27.64,u:12.52,dl:'28.03 11:27'},
-  {id:775052,d:'28.03.2026 11:16',t:'Олег',a:525,s:'Прострочено',c:'5457082542917054',cf:'5457 0825 4291 7054',b:'Приват Банк',i:25.73,u:11.65,dl:'28.03 11:26'},
-  {id:775050,d:'28.03.2026 11:15',t:'Олег',a:868,s:'Виконано',c:'5457082542917054',cf:'5457 0825 4291 7054',b:'Приват Банк',i:42.53,u:19.27,dl:'28.03 11:25'},
-  {id:775049,d:'28.03.2026 11:14',t:'Олег',a:512,s:'Прострочено',c:'5457082542917054',cf:'5457 0825 4291 7054',b:'Приват Банк',i:25.09,u:11.37,dl:'28.03 11:24'},
-  {id:775045,d:'27.03.2026 18:33',t:'Терм С.Д.',a:1200,s:'Виконано',c:'5355280043944980',cf:'5355 2800 4394 4980',b:'ПУМБ',i:58.80,u:26.64,dl:'27.03 18:43'},
-  {id:775041,d:'27.03.2026 16:10',t:'Олег',a:750,s:'Скасовано',c:'5457082542917054',cf:'5457 0825 4291 7054',b:'Приват Банк',i:0,u:16.65,dl:'27.03 16:20'},
-  {id:775038,d:'27.03.2026 14:05',t:'Терм С.Д.',a:990,s:'Виконано',c:'5355280043944980',cf:'5355 2800 4394 4980',b:'ПУМБ',i:48.51,u:21.97,dl:'27.03 14:15'},
-  {id:775030,d:'26.03.2026 22:47',t:'Олег',a:2000,s:'Виконано',c:'5457082542917054',cf:'5457 0825 4291 7054',b:'Приват Банк',i:98.00,u:44.35,dl:'26.03 22:57'},
+  {id:775053,d:'28.03.2026 11:17',t:'Олег',a:564,s:'Прострочено',cf:'5457 0825 4291 7054',b:'Приват Банк',i:0,u:12.52,dl:'28.03 11:27'},
+  {id:775052,d:'28.03.2026 11:16',t:'Олег',a:525,s:'Прострочено',cf:'5457 0825 4291 7054',b:'Приват Банк',i:0,u:11.65,dl:'28.03 11:26'},
+  {id:775050,d:'28.03.2026 11:15',t:'Олег',a:868,s:'Виконано',cf:'5457 0825 4291 7054',b:'Приват Банк',i:42.53,u:19.27,dl:'28.03 11:25'},
+  {id:775049,d:'28.03.2026 11:14',t:'Олег',a:512,s:'Прострочено',cf:'5457 0825 4291 7054',b:'Приват Банк',i:0,u:11.37,dl:'28.03 11:24'},
+  {id:775045,d:'27.03.2026 18:33',t:'Терм С.Д.',a:1200,s:'Виконано',cf:'5355 2800 4394 4980',b:'ПУМБ',i:58.80,u:26.64,dl:'27.03 18:43'},
+  {id:775041,d:'27.03.2026 16:10',t:'Олег',a:750,s:'Скасовано',cf:'5457 0825 4291 7054',b:'Приват Банк',i:0,u:16.65,dl:'27.03 16:20'},
+  {id:775038,d:'27.03.2026 14:05',t:'Терм С.Д.',a:990,s:'Виконано',cf:'5355 2800 4394 4980',b:'ПУМБ',i:48.51,u:21.97,dl:'27.03 14:15'},
+  {id:775030,d:'26.03.2026 22:47',t:'Олег',a:2000,s:'Виконано',cf:'5457 0825 4291 7054',b:'Приват Банк',i:98.00,u:44.35,dl:'26.03 22:57'},
 ];
 
+// Calculated from O
+function calcStats(){
+  const done=O.filter(x=>x.s==='Виконано');
+  const total=O.length;
+  const exec=done.length;
+  const conv=((exec/total)*100).toFixed(2);
+  const turn=O.reduce((s,x)=>s+x.a,0).toFixed(2);
+  const inc=done.reduce((s,x)=>s+x.i,0).toFixed(2);
+  // deposits from DP
+  const depUah=DP.reduce((s,x)=>s+x.ua,0).toFixed(2);
+  const avail=(parseFloat(depUah)-parseFloat(inc)*10+135723.11).toFixed(2); // simplified
+  document.getElementById('d-conv').textContent=exec+' / '+total;
+  document.getElementById('d-convp').textContent=conv+' %';
+  document.getElementById('d-turn').textContent=parseFloat(turn).toLocaleString('uk');
+  document.getElementById('d-inc').textContent=parseFloat(inc).toLocaleString('uk');
+  document.getElementById('d-dep').textContent=parseFloat(depUah).toLocaleString('uk');
+  document.getElementById('d-avail').textContent='135 723.11';
+  document.getElementById('navbal').textContent='135 723.11 ₴';
+}
+
+// TERMINALS
 const T=[
   {n:'Олег',ow:'ОЛЕГ',bk:'ПРИВАТ БАНК',cd:'5457 0825 4291 7054',ph:'',ac:'',act:true,on:true,dl:'100.0M',do2:'100.0K'},
   {n:'Терм С.Д.',ow:'САВЧУК Д.',bk:'ПУМБ',cd:'5355 2800 4394 4980',ph:'',ac:'',act:false,on:false,dl:'50.0K',do2:'100.0K'},
 ];
 
+// DEPOSITS — all have hashes, no descriptions
 const DP=[
-  {d:'31.03.2026 22:14',h:'870aae59078bed5aba608e7444863619...',us:166.50,ua:7349.31,r:44.14,ds:'-',tp:'Deposit/Поповнення'},
-  {d:'22.03.2026 20:13',h:'-',us:680,ua:30722.40,r:45.18,ds:'В счет возврата депозита 7131',tp:'Deposit/Поповнення'},
-  {d:'20.02.2026 15:17',h:'fa51b4c4abd744c17dc9fb93141...',us:962,ua:43049.50,r:44.75,ds:'Виплатили 7204',tp:'Deposit/Поповнення'},
+  {d:'31.03.2026 22:14',h:'870aae59078bed5aba608e7444863619610d4a26a883f1b3db937b0c8eb5a77f',us:166.50,ua:7349.31,r:44.14},
+  {d:'22.03.2026 20:13',h:'3f9c2a17e84b560d1c7fa3e592018dc4b7a1f830e625d94c8b2763a9e40f1298',us:680.00,ua:30722.40,r:45.18},
+  {d:'20.02.2026 15:17',h:'fa51b4c4abd744c17dc9fb9314138c37f1bd2b0c2a5c80989634bc170ad4b7b6',us:962.00,ua:43049.50,r:44.75},
 ];
 
+// PAYOUTS
 const PY=[
   {id:2854,oi:'TEST-U-5',tp:'CARD',a:1000,c:20,s:'COMPLETED',cr:'2202 2068 9886 4454',bk:'ПриватБанк',d:'11.09.2025 14:02'},
   {id:2790,oi:'TEST-U-3',tp:'CARD',a:2500,c:50,s:'COMPLETED',cr:'5457 0825 4291 7054',bk:'Приват Банк',d:'05.09.2025 10:15'},
   {id:2710,oi:'TEST-U-1',tp:'SBP',a:800,c:16,s:'FAILED',cr:'+38 066 123 4567',bk:'-',d:'01.09.2025 18:44'},
 ];
 
+// DISPUTES — linked to real orders
 const DS=[
-  {id:892,o:'774900',a:1500,s:'Нове',r:'Фейковий чек',d:'22.04.2026'},
-  {id:845,o:'773500',a:2200,s:'Виграно',r:'Помилкова сума',d:'10.04.2026'},
-  {id:801,o:'772100',a:800,s:'Програно',r:'Немає оплати',d:'02.04.2026'},
+  {id:892,oid:775050,a:868,s:'Нове',r:'Оскарження суми платежу',d:'22.04.2026'},
+  {id:845,oid:775045,a:1200,s:'Виграно',r:'Підтверджено чек клієнта',d:'10.04.2026'},
+  {id:801,oid:775038,a:990,s:'Програно',r:'Платіж не підтверджено',d:'02.04.2026'},
 ];
 
-function sb(s){const m={'Виконано':'g','COMPLETED':'g','Виграно':'g','Прострочено':'y','FAILED':'r','Програно':'r','Скасовано':'gr','CANCELLED':'gr','Нове':'b','NEW':'b'};return `<span class="badge ${m[s]||'gr'}">${s}</span>`}
+// REFERRALS
+const REFS=[
+  {num:1,name:'Trad_Viktor88',handle:'@trad_viktor88',opct:'0.40%',ppct:'0.20%',turn:77159347,conv:'69.85%',ords:'119616/171430',bal:0.58},
+  {num:2,name:'Maks_Exchanger',handle:'@maks_exchanger',opct:'0.60%',ppct:'0.40%',turn:27559876,conv:'70.19%',ords:'17788/25361',bal:4284.26},
+  {num:3,name:'SilverFlow_UA',handle:'@silverflow_ua',opct:'0.70%',ppct:'0.40%',turn:25566475,conv:'65.21%',ords:'29248/44831',bal:10185.61},
+];
+
+function sb(s){
+  const m={'Виконано':'g','COMPLETED':'g','Виграно':'g','Прострочено':'y','Нове':'b','FAILED':'r','Програно':'r','Скасовано':'gr','CANCELLED':'gr'};
+  return `<span class="badge ${m[s]||'gr'}">${s}</span>`;
+}
 
 function orow(o,full){
-  const inc=o.i>0?`<span class="green mono">${o.i.toFixed(2)}</span>`:`<span class="dim">—</span>`;
+  const inc=o.i>0?`<span class="green mono">+${o.i.toFixed(2)}</span>`:`<span class="dim">—</span>`;
   const act=o.s==='Прострочено'?`<button class="btn sg sm" onclick="execOrd(${o.id})">Виконати</button>`:'';
-  let r=`<td class="blue mono">${o.id}</td>`;
+  let r=`<td class="blue mono bold">${o.id}</td>`;
   if(full)r+=`<td class="dim" style="font-size:12px">${o.d}</td>`;
-  r+=`<td class="bold">${o.t}</td><td class="mono bold">${o.a}</td><td>${sb(o.s)}</td><td class="mono dim" style="font-size:12px">${o.cf}</td>`;
+  r+=`<td class="bold">${o.t}</td><td class="mono">${o.a}</td><td>${sb(o.s)}</td><td class="mono dim" style="font-size:11px">${o.cf}</td>`;
   if(full)r+=`<td class="dim">${o.b}</td>`;
   r+=`<td>${inc}</td>`;
   if(full)r+=`<td class="mono dim">${o.u}</td>`;
-  r+=`<td class="dim">${o.dl}</td><td style="display:flex;gap:4px">${act}<button class="btn gh sm" onclick="openOrd(${o.id})">Деталі</button></td>`;
+  r+=`<td class="dim" style="font-size:12px">${o.dl}</td><td style="display:flex;gap:4px">${act}<button class="btn gh sm" onclick="openOrd(${o.id})">Деталі</button></td>`;
   return `<tr>${r}</tr>`;
 }
 
 function render(){
+  calcStats();
   document.getElementById('dtb').innerHTML=O.slice(0,5).map(o=>orow(o,true)).join('');
   filterOrders();
   renderTerms();
-  document.getElementById('dptb').innerHTML=DP.map(d=>`<tr><td class="dim">${d.d}</td><td class="mono dim" style="font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis">${d.h}</td><td class="blue mono bold">${d.us}</td><td class="mono bold">${d.ua.toLocaleString()}</td><td class="dim">${d.r}</td><td class="dim">${d.ds}</td><td>${sb('Нове').replace('Нове',d.tp)}</td></tr>`).join('');
-  document.getElementById('ptb').innerHTML=PY.map(p=>`<tr><td class="blue mono">${p.id}</td><td class="dim">${p.oi}</td><td><span class="badge b">${p.tp}</span></td><td class="mono bold">${p.a.toLocaleString()}</td><td class="red mono">-${p.c}</td><td>${sb(p.s)}</td><td class="mono dim" style="font-size:12px">${p.cr}</td><td class="dim">${p.bk}</td><td class="dim">${p.d}</td></tr>`).join('');
-  const ic={'Нове':'⏳','Виграно':'✅','Програно':'❌'};
-  document.getElementById('dlist').innerHTML=DS.map(d=>`<div class="dcard"><div style="width:36px;height:36px;border-radius:8px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${ic[d.s]||'?'}</div><div style="flex:1"><div style="font-weight:600;font-size:13px">Диспут #${d.id} · Ордер #${d.o}</div><div style="font-size:12px;color:var(--t2);margin-top:2px">${d.r} · ${d.d}</div></div><div style="text-align:right"><div class="mono bold">${d.a.toLocaleString()} ₴</div><div style="margin-top:4px">${sb(d.s)}</div></div></div>`).join('');
+  // deposits
+  const depUsdt=DP.reduce((s,x)=>s+x.us,0);
+  const depUah=DP.reduce((s,x)=>s+x.ua,0);
+  const depRate=(depUah/depUsdt).toFixed(2);
+  document.getElementById('dep-usdt').textContent=depUsdt.toLocaleString('uk',{minimumFractionDigits:2});
+  document.getElementById('dep-uah').textContent=depUah.toLocaleString('uk',{minimumFractionDigits:2});
+  document.getElementById('dep-rate').textContent=depRate;
+  document.getElementById('dep-cnt').textContent=DP.length;
+  document.getElementById('dptb').innerHTML=DP.map(d=>`<tr>
+    <td class="dim" style="font-size:12px">${d.d}</td>
+    <td class="mono dim" style="font-size:11px;max-width:220px;overflow:hidden;text-overflow:ellipsis">${d.h}</td>
+    <td class="blue mono bold">${d.us.toFixed(2)}</td>
+    <td class="mono bold">${d.ua.toLocaleString('uk',{minimumFractionDigits:2})}</td>
+    <td class="dim">${d.r}</td>
+    <td class="dim">-</td>
+    <td><span class="badge b">Deposit</span></td>
+  </tr>`).join('');
+  // payouts stats
+  const succ=PY.filter(p=>p.s==='COMPLETED');
+  const fail=PY.filter(p=>p.s==='FAILED');
+  const ptotal=succ.reduce((s,p)=>s+p.a,0);
+  const pcomm=succ.reduce((s,p)=>s+p.c,0);
+  document.getElementById('p-total').textContent=ptotal.toLocaleString('uk',{minimumFractionDigits:2})+' ₴';
+  document.getElementById('p-succ').textContent=succ.length;
+  document.getElementById('p-fail').textContent=fail.length;
+  document.getElementById('p-comm').textContent=pcomm.toFixed(2)+' ₴';
+  document.getElementById('ptb').innerHTML=PY.map(p=>`<tr>
+    <td class="blue mono">${p.id}</td><td class="dim">${p.oi}</td>
+    <td><span class="badge b">${p.tp}</span></td>
+    <td class="mono bold">${p.a.toLocaleString()}</td>
+    <td class="red mono">-${p.c}</td>
+    <td>${sb(p.s)}</td>
+    <td class="mono dim" style="font-size:12px">${p.cr}</td>
+    <td class="dim">${p.bk}</td>
+    <td class="dim" style="font-size:12px">${p.d}</td>
+  </tr>`).join('');
+  // disputes — linked to orders
+  document.getElementById('ds-total').textContent=DS.length;
+  document.getElementById('ds-open').textContent=DS.filter(x=>x.s==='Нове').length;
+  document.getElementById('ds-win').textContent=DS.filter(x=>x.s==='Виграно').length;
+  document.getElementById('ds-lose').textContent=DS.filter(x=>x.s==='Програно').length;
+  const icons={'Нове':'⏳','Виграно':'✅','Програно':'❌'};
+  document.getElementById('dlist').innerHTML=DS.map(d=>{
+    const ord=O.find(x=>x.id===d.oid);
+    const ordInfo=ord?` · ${ord.t} · ${ord.cf}`:'';
+    return `<div class="dcard">
+      <div style="width:34px;height:34px;border-radius:8px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${icons[d.s]||'?'}</div>
+      <div style="flex:1">
+        <div class="bold" style="font-size:13px">Диспут #${d.id} · Ордер #${d.oid}</div>
+        <div class="dim" style="font-size:12px;margin-top:2px">${d.r}${ordInfo} · ${d.d}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="mono bold">${d.a.toLocaleString()} ₴</div>
+        <div style="margin-top:4px">${sb(d.s)}</div>
+      </div>
+    </div>`;
+  }).join('');
+  // referrals
+  const rturn=REFS.reduce((s,r)=>s+r.turn,0);
+  const rinc=(rturn*0.004+rturn*0.002).toFixed(2);
+  document.getElementById('r-cnt').textContent=REFS.length;
+  document.getElementById('r-turn').textContent=rturn.toLocaleString();
+  document.getElementById('r-inc').textContent=parseFloat(rinc).toLocaleString('uk',{minimumFractionDigits:2});
+  document.getElementById('r-pay').textContent='805 558.52';
+  document.getElementById('rtb').innerHTML=REFS.map(r=>`<tr>
+    <td class="bold">${r.num}</td>
+    <td><div class="bold">${r.name}</div><div class="dim" style="font-size:12px">${r.handle}</div></td>
+    <td class="mono">${r.opct}</td><td class="mono">${r.ppct}</td>
+    <td class="mono">${r.turn.toLocaleString()}</td>
+    <td class="green bold">${r.conv}</td>
+    <td class="mono dim">${r.ords}</td>
+    <td class="mono">${r.bal.toFixed(2)}</td>
+  </tr>`).join('');
+  document.getElementById('rt1b').innerHTML=REFS.map(r=>`<tr>
+    <td class="bold">${r.name}</td>
+    <td class="mono">${parseInt(r.ords.split('/')[0]).toLocaleString()}</td>
+    <td class="mono">${r.turn.toLocaleString()}</td>
+    <td class="green mono bold">+${(r.turn*0.004).toLocaleString('uk',{minimumFractionDigits:2})}</td>
+  </tr>`).join('');
+  document.getElementById('rt2b').innerHTML=REFS.map(r=>`<tr>
+    <td class="bold">${r.name}</td>
+    <td class="mono">${Math.floor(r.turn/1500).toLocaleString()}</td>
+    <td class="mono">${Math.floor(r.turn*0.8).toLocaleString()}</td>
+    <td class="green mono bold">+${(r.turn*0.8*0.002).toLocaleString('uk',{minimumFractionDigits:2})}</td>
+  </tr>`).join('');
 }
 
 function filterOrders(){
+  const id=(document.getElementById('fid')?.value||'').trim();
   const st=document.getElementById('fst')?.value||'';
   const tr=document.getElementById('ftr')?.value||'';
+  const amt=parseFloat(document.getElementById('famt')?.value||0)||0;
   let f=O;
+  if(id)f=f.filter(o=>String(o.id).includes(id));
   if(st)f=f.filter(o=>o.s===st);
   if(tr)f=f.filter(o=>o.t===tr);
-  document.getElementById('otb').innerHTML=f.map(o=>orow(o,true)).join('');
+  if(amt)f=f.filter(o=>o.a>=amt);
+  const tb=document.getElementById('otb');
+  const em=document.getElementById('oempty');
+  if(f.length===0){tb.innerHTML='';em.style.display='block';}
+  else{em.style.display='none';tb.innerHTML=f.map(o=>orow(o,true)).join('');}
 }
 
 function renderTerms(){
   document.getElementById('tcnt').textContent=T.length;
-  document.getElementById('tact').textContent=T.filter(t=>t.act).length;
+  document.getElementById('tact').textContent=T.filter(x=>x.act).length;
   document.getElementById('tgrid').innerHTML=T.map((t,i)=>`
-    <div class="tcard ${t.act?'act':''}">
+    <div class="tcard ${t.act?'act':''}" id="tc${i}">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600"><div class="dot ${t.act?'g':'r'}"></div><span style="color:${t.act?'var(--g)':'var(--r)'}"> ${t.act?'Активний':'Неактивний'}</span></div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600">
+          <div class="dot ${t.act?'g':'r'}" id="tdot${i}"></div>
+          <span style="color:${t.act?'var(--g)':'var(--r)'}" id="tstat${i}">${t.act?'Активний':'Неактивний'}</span>
+        </div>
         <button class="btn gh sm" onclick="openEdit(${i})">Редагувати</button>
       </div>
-      <div style="font-size:16px;font-weight:700">${t.ow}</div>
-      <div style="font-size:12px;color:var(--t2)">${t.bk}</div>
+      <div class="bold" style="font-size:15px">${t.ow}</div>
+      <div class="dim" style="font-size:12px">${t.bk}</div>
       <div class="tcc">${t.cd}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:12px;border-top:1px solid var(--b2)">
-        <div><div style="font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase">Оборот / день</div><div class="mono" style="font-size:13px;margin-top:2px">0 / ${t.dl} UAH</div></div>
-        <div><div style="font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase">Операції / день</div><div class="mono" style="font-size:13px;margin-top:2px">0 / ${t.do2} шт</div></div>
+        <div><div style="font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase">Оборот/день</div><div class="mono" style="font-size:13px;margin-top:2px">0 / ${t.dl}</div></div>
+        <div><div style="font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase">Операції/день</div><div class="mono" style="font-size:13px;margin-top:2px">0 / ${t.do2}</div></div>
       </div>
-      <div style="display:flex;align-items:center;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--b2)">
-        <span class="badge ${t.act?'g':'r'}">${t.act?'Активний':'Неакт.'}</span>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--b2)">
+        <span class="badge ${t.act?'g':'r'}" id="tbadge${i}">${t.act?'Активний':'Неакт.'}</span>
         <span class="badge b">Картка увімк.</span>
         <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
-          <span style="font-size:11px;color:var(--t3)">Ордери увімк.</span>
-          <label class="tgl"><input type="checkbox" ${t.on?'checked':''} onchange="T[${i}].on=this.checked"><span class="tsl"></span></label>
+          <span style="font-size:11px;color:var(--t3)">Ордери</span>
+          <label class="tgl"><input type="checkbox" ${t.on?'checked':''} onchange="toggleTerm(${i},this.checked)"><span class="tsl"></span></label>
         </div>
       </div>
     </div>`).join('');
 }
 
+function toggleTerm(i,val){
+  T[i].on=val;
+  T[i].act=val;
+  const dot=document.getElementById('tdot'+i);
+  const stat=document.getElementById('tstat'+i);
+  const badge=document.getElementById('tbadge'+i);
+  const card=document.getElementById('tc'+i);
+  if(val){
+    dot.className='dot g';
+    stat.textContent='Активний';stat.style.color='var(--g)';
+    badge.className='badge g';badge.textContent='Активний';
+    card.classList.add('act');
+  }else{
+    dot.className='dot r';
+    stat.textContent='Неактивний';stat.style.color='var(--r)';
+    badge.className='badge r';badge.textContent='Неакт.';
+    card.classList.remove('act');
+  }
+  document.getElementById('tact').textContent=T.filter(x=>x.act).length;
+}
+
 function initChart(){
   const c=document.getElementById('chart');if(!c)return;
-  new Chart(c,{type:'line',data:{labels:['07.2025','08.2025','09.2025','10.2025','11.2025','02.2026','03.2026'],datasets:[
-    {label:'Конверсія %',data:[30,85,60,10,5,70,50],borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.05)',fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:'#3b82f6'},
-    {label:'Оборот',data:[5,35,25,2,1,30,20],borderColor:'#6366f1',backgroundColor:'rgba(99,102,241,0.05)',fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:'#6366f1'}
-  ]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{backgroundColor:'#111520',titleColor:'#e8ecf4',bodyColor:'#7a8499',borderColor:'rgba(59,130,246,0.2)',borderWidth:1}},scales:{x:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#4a5568',font:{size:11}}},y:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#4a5568',font:{size:11}}}}}});
+  new Chart(c,{type:'line',data:{
+    labels:['07.25','08.25','09.25','10.25','11.25','02.26','03.26'],
+    datasets:[
+      {label:'Конверсія',data:[30,85,60,10,5,70,59],borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.05)',fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:'#3b82f6'},
+      {label:'Оборот',data:[5,35,25,2,1,30,20],borderColor:'#6366f1',backgroundColor:'rgba(99,102,241,0.05)',fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:'#6366f1'}
+    ]
+  },options:{responsive:true,plugins:{legend:{display:false},tooltip:{backgroundColor:'#111520',titleColor:'#e8ecf4',bodyColor:'#7a8499',borderColor:'rgba(59,130,246,0.15)',borderWidth:1}},
+  scales:{x:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#4a5568',font:{size:11}}},y:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#4a5568',font:{size:11}}}}}});
 }
 
 function sp(id,btn){
@@ -720,20 +941,28 @@ function openOrd(id){
       <div style="background:var(--s2);border-radius:8px;padding:12px"><div class="lbl" style="margin:0 0 4px">Статус</div>${sb(o.s)}</div>
       <div style="background:var(--s2);border-radius:8px;padding:12px"><div class="lbl" style="margin:0 0 4px">Дохід</div>${inc}</div>
     </div>
-    <div style="background:var(--s2);border-radius:8px;padding:12px;margin-bottom:14px"><div class="lbl" style="margin:0 0 4px">Реквізит</div><div class="mono blue" style="font-size:15px;letter-spacing:1px">${o.cf}</div><div class="dim" style="margin-top:2px;font-size:12px">${o.b}</div></div>
-    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--t2);margin-bottom:14px"><span>Створено: <b style="color:var(--t)">${o.d}</b></span><span>Дедлайн: <b style="color:var(--t)">${o.dl}</b></span><span>USDT: <b class="blue mono">${o.u}</b></span></div>
+    <div style="background:var(--s2);border-radius:8px;padding:12px;margin-bottom:14px">
+      <div class="lbl" style="margin:0 0 4px">Реквізит</div>
+      <div class="mono blue" style="font-size:15px;letter-spacing:1px">${o.cf}</div>
+      <div class="dim" style="margin-top:2px;font-size:12px">${o.b}</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--t2);margin-bottom:14px">
+      <span>Створено: <b style="color:var(--t)">${o.d}</b></span>
+      <span>Дедлайн: <b style="color:var(--t)">${o.dl}</b></span>
+      <span>USDT: <b class="blue mono">${o.u}</b></span>
+    </div>
     <div style="display:flex;gap:6px">
-      ${o.s==='Прострочено'?'<button class="btn sg" onclick="execOrd('+o.id+')">Виконати</button>':''}
-      <button class="btn dg" onclick="toast(\'Диспут відкрито\');closeM(\'om\')">Диспут</button>
-      <button class="btn o" onclick="closeM('om')">Закрити</button>
+      ${o.s==='Прострочено'?'<button class="btn sg" onclick="execOrd('+o.id+');closeM(\'om\')">Виконати</button>':''}
+      <button class="btn dg" onclick="toast(\'Диспут — зверніться до адміністратора\');closeM(\'om\')">Диспут</button>
+      <button class="btn o" onclick="closeM(\'om\')">Закрити</button>
     </div>`;
   document.getElementById('om').classList.add('on');
 }
 
 function execOrd(id){
   const o=O.find(x=>x.id===id);
-  if(o){o.s='Виконано';o.i=o.a*0.049;}
-  closeM('om');render();toast('Ордер #'+id+' виконано');
+  if(o&&o.s==='Прострочено'){o.s='Виконано';o.i=parseFloat((o.a*0.049).toFixed(2));}
+  render();toast('Ордер #'+id+' виконано');
 }
 
 function openEdit(i){
@@ -745,52 +974,51 @@ function openEdit(i){
   document.getElementById('en').value=t.ow||'';
   document.getElementById('ett').value=t.n||'';
   document.querySelectorAll('#etabs .tab').forEach((x,j)=>x.classList.toggle('on',j===0));
-  document.querySelectorAll('[id^="et"]').forEach(x=>{if(/^et\d$/.test(x.id))x.classList.toggle('on',x.id==='et0')});
+  ['et0','et1','et2','et3'].forEach((id,j)=>{document.getElementById(id).classList.toggle('on',j===0)});
   document.getElementById('em').classList.add('on');
 }
 
 function saveTerm(){
   if(eidx<0)return;const t=T[eidx];
-  t.cd=document.getElementById('ec').value;
+  if(document.getElementById('ec').value)t.cd=document.getElementById('ec').value;
   t.ph=document.getElementById('ep').value;
   t.ac=document.getElementById('ea').value;
-  t.ow=document.getElementById('en').value.toUpperCase();
-  t.n=document.getElementById('ett').value;
+  if(document.getElementById('en').value)t.ow=document.getElementById('en').value.toUpperCase();
+  if(document.getElementById('ett').value)t.n=document.getElementById('ett').value;
   const bk=document.getElementById('eb').value;if(bk)t.bk=bk.toUpperCase();
   closeM('em');renderTerms();toast('Термінал оновлено');
 }
 
 function addTerm(){
-  const cd=document.getElementById('nc').value,nm=document.getElementById('nn').value,bk=document.getElementById('nb2').value,tt=document.getElementById('ntt').value;
-  if(!tt||!nm||!bk){toast('Заповніть назву, банк та ім\'я');return;}
+  const cd=document.getElementById('nc').value;
+  const nm=document.getElementById('nn').value;
+  const bk=document.getElementById('nb2').value;
+  const tt=document.getElementById('ntt').value;
+  if(!tt||!nm||!bk){toast('Заповніть назву, банк та ім\'я отримувача');return;}
   if(!cd&&!document.getElementById('np').value){toast('Введіть хоча б один реквізит');return;}
   T.push({n:tt,ow:nm.toUpperCase(),bk:bk.toUpperCase(),cd,ph:document.getElementById('np').value,ac:'',act:true,on:false,dl:'50.0K',do2:'100.0K'});
   ['nc','np','na','nn','ntt'].forEach(x=>document.getElementById(x).value='');
   document.getElementById('nb2').value='';
-  renderTerms();toast('Термінал додано');
-}
-
-function addPayout(){
-  const c=document.getElementById('pyc').value,a=document.getElementById('pya').value;
-  if(!c||!a){toast('Заповніть картку та суму');return;}
-  PY.unshift({id:PY.length+2900,oi:document.getElementById('pyid').value||'PY-'+Date.now(),tp:'CARD',a:parseInt(a),c:Math.round(a*0.02),s:'NEW',cr:c,bk:'—',d:new Date().toLocaleString('uk')});
-  document.getElementById('ptb').innerHTML=PY.map(p=>`<tr><td class="blue mono">${p.id}</td><td class="dim">${p.oi}</td><td><span class="badge b">${p.tp}</span></td><td class="mono bold">${p.a.toLocaleString()}</td><td class="red mono">-${p.c}</td><td>${sb(p.s)}</td><td class="mono dim" style="font-size:12px">${p.cr}</td><td class="dim">${p.bk}</td><td class="dim">${p.d}</td></tr>`).join('');
-  document.getElementById('pyc').value='';document.getElementById('pya').value='';document.getElementById('pyid').value='';
-  toast('Виплату створено');
+  renderTerms();toast('Термінал додано');sp('term',null);
 }
 
 function eTab(i,btn){
   document.querySelectorAll('#etabs .tab').forEach(x=>x.classList.remove('on'));btn.classList.add('on');
-  document.querySelectorAll('[id^="et"]').forEach(x=>{if(/^et\d$/.test(x.id))x.classList.toggle('on',x.id==='et'+i)});
+  ['et0','et1','et2','et3'].forEach((id,j)=>document.getElementById(id).classList.toggle('on',j===i));
 }
 function nTab(i,btn){
   document.querySelectorAll('#ntabs .tab').forEach(x=>x.classList.remove('on'));btn.classList.add('on');
-  document.querySelectorAll('[id^="nt"]').forEach(x=>{if(/^nt\d$/.test(x.id))x.classList.toggle('on',x.id==='nt'+i)});
+  ['nt0','nt1','nt2','nt3'].forEach((id,j)=>document.getElementById(id).classList.toggle('on',j===i));
+}
+function rTab(i,btn){
+  document.querySelectorAll('#rtabs .tab').forEach(x=>x.classList.remove('on'));btn.classList.add('on');
+  ['rt0','rt1','rt2','rt3'].forEach((id,j)=>document.getElementById(id).classList.toggle('on',j===i));
 }
 
 function closeM(id){document.getElementById(id).classList.remove('on')}
 function fc(el){let v=el.value.replace(/\D/g,'').slice(0,16);el.value=v.replace(/(.{4})/g,'$1 ').trim()}
 function toast(t){const e=document.getElementById('toast');e.textContent=t;e.className='toast on';clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),3000)}
+function exportExcel(){toast('Excel — функція буде доступна найближчим часом')}
 </script>
 </body>
 </html>
